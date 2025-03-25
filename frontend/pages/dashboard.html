@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - CloudBased Expense Tracker</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../assets/css/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Load Chart.js first before other scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/sidebar.js"></script>
+  <script src="../assets/js/dashboard.js" defer></script>
+</head>
+<body>
+  <div class="app-container">
+    <nav class="sidebar" id="sidebar">
+      <!-- Sidebar content will be loaded dynamically -->
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div class="toggle-sidebar"></div>
+        <div class="user-info">
+          <div class="user-profile">
+            <span id="user-name">Loading...</span>
+            <div class="avatar" id="user-avatar">...</div>
+          </div>
+        </div>
+      </div>
+
+      <header class="page-header">
+        <h1>Dashboard</h1>
+        <p>Overview of your recent expenses</p>
+      </header>
+
+      <div class="summary-cards">
+        <div class="summary-card card">
+          <div class="card-icon blue"><i class="fas fa-money-bill-wave"></i></div>
+          <div class="card-info">
+            <h3>Total Expenses</h3>
+            <h2 id="total-expenses">₹0</h2>
+          </div>
+        </div>
+        <div class="summary-card card">
+          <div class="card-icon green"><i class="fas fa-calendar-alt"></i></div>
+          <div class="card-info">
+            <h3>This Month</h3>
+            <h2 id="monthly-expenses">₹0</h2>
+          </div>
+        </div>
+        <div class="summary-card card">
+          <div class="card-icon purple"><i class="fas fa-chart-pie"></i></div>
+          <div class="card-info">
+            <h3>Categories</h3>
+            <h2 id="category-count">0</h2>
+          </div>
+        </div>
+        <div class="summary-card card">
+          <div class="card-icon orange"><i class="fas fa-receipt"></i></div>
+          <div class="card-info">
+            <h3>Recent Expense</h3>
+            <h2 id="recent-expense">₹0</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-header">
+          <h3>Expense Overview</h3>
+          <div class="chart-filter">
+            <select id="chart-period">
+              <option value="7">Last 7 Days</option>
+              <option value="30" selected>Last 30 Days</option>
+              <option value="90">Last 3 Months</option>
+              <option value="365">Last Year</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="expenseChart" height="300"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Expenses</h3>
+          <a href="expenses.html" class="view-all">View All</a>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="expense-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recent-expenses-table">
+                <tr>
+                  <td colspan="5" class="text-center">Loading expenses...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-header">
+          <h3>Category Distribution</h3>
+        </div>
+        <div class="card-body">
+          <canvas id="categoryChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

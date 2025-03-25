@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - CloudBased Expense Tracker</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../assets/css/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      fetch('./components/sidebar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('sidebar').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading sidebar:', error));
+    });
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <nav class="sidebar" id="sidebar">
+      
+    </nav>
+    
+    <div class="main-content">
+      <div class="topbar">
+        <div class="toggle-sidebar"><i class="fas fa-bars"></i></div>
+        <div class="user-info">
+          <div class="notifications">
+            <i class="fas fa-bell"></i>
+            <div class="badge">3</div>
+          </div>
+          <div class="user-profile">
+            <span>John Doe</span>
+            <div class="avatar">JD</div>
+          </div>
+        </div>
+      </div>
+      
+      <header class="page-header">
+        <h1>Your Profile</h1>
+        <p>Manage your account information</p>
+      </header>
+      
+      <div class="card">
+        <div class="card-header">
+          <h3>Profile Details</h3>
+        </div>
+        <div class="card-body">
+          <p><strong>Name:</strong> John Doe</p>
+          <p><strong>Email:</strong> john.doe@example.com</p>
+          <!-- Add more profile details and edit options as needed -->
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

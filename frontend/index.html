@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CloudBased Expense Tracker - Login</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- <link rel="icon" type="image/png" href="assets/images/favicon.png" /> -->
+  <script>
+    const API_BASE_URL = 'http://localhost:5000/api';
+  </script>
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <div class="login-left">
+      <div class="login-info">
+        <h1>CloudBased Expense Tracker</h1>
+        <p>Take control of your expenses with ease</p>
+        <ul class="app-features">
+          <li>Track daily expenses easily</li>
+          <li>Categorize your spending</li>
+          <li>Generate insightful reports</li>
+          <li>Access anywhere, anytime</li>
+        </ul>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-container">
+        <h2>Welcome Back</h2>
+        <p>Sign in to continue to your dashboard</p>
+        <form id="loginForm" class="login-form">
+            <input type="hidden" id="csrfToken" name="csrfToken" value="YOUR_CSRF_TOKEN" />
+            <div class="form-group">
+              <label for="email"><i class="fas fa-envelope"></i> Email</label>
+              <input type="email" id="email" name="email" placeholder="Enter your email" required />
+            </div>
+            <div class="form-group">
+              <label for="password"><i class="fas fa-lock"></i> Password</label>
+              <input type="password" id="password" name="password" placeholder="Enter your password" required />
+              <span class="forgot-password"><a href="#" id="forgotPasswordLink">Forgot password?</a></span>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </div>
+          </form>
+          <div class="login-divider">
+            <span>New to CloudBased?</span>
+          </div>
+          <div class="form-group">
+            <button id="registerBtn" class="btn btn-outline btn-block">
+              <i class="fas fa-user-plus"></i> Create an Account
+            </button>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Registration Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2><i class="fas fa-user-plus"></i> Create an Account</h2>
+      <form id="registerForm">
+        <input type="hidden" id="csrfTokenReg" name="csrfToken" value="YOUR_CSRF_TOKEN" />
+        <div class="form-group">
+          <label for="reg-name"><i class="fas fa-user"></i> Full Name</label>
+          <input type="text" id="reg-name" name="name" placeholder="Enter your full name" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-email"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="reg-email" name="email" placeholder="Enter your email address" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-password"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="reg-password" name="password" placeholder="Create a strong password" required />
+          <progress id="strengthBar" value="0" max="4"></progress>
+          <small class="password-hint">Use 8+ characters with letters, numbers & symbols</small>
+        </div>
+        <div class="form-group">
+          <label for="reg-confirm-password"><i class="fas fa-check-circle"></i> Confirm Password</label>
+          <input type="password" id="reg-confirm-password" name="confirmPassword" placeholder="Confirm your password" required />
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

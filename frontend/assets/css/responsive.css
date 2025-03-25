@@ -1,0 +1,24 @@
+@media (max-width: 768px) {
+    .login-container {
+      flex-direction: column;
+      height: auto;
+    }
+    .login-left,
+    .login-right {
+      width: 100%;
+      padding: 20px;
+    }
+    .sidebar {
+      width: 100%;
+      position: relative;
+      height: auto;
+    }
+    .topbar {
+      left: 0;
+    }
+    .main-content {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+  
