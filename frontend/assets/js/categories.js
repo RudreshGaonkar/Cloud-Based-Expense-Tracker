@@ -1,8 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
   fetchCategories();
+  loadUserInfo();
 });
 
-// Function to fetch categories from backend
+async function loadUserInfo() {
+  try {
+      const response = await fetch('/api/users/profile', { credentials: 'include' });
+      if (!response.ok) throw new Error("Failed to fetch user profile");
+
+      const data = await response.json();
+      document.getElementById('user-name').textContent = data.user.name;
+      document.getElementById('user-avatar').textContent = data.user.name.charAt(0).toUpperCase();
+  } catch (error) {
+      console.error("Error loading user info:", error);
+  }
+}
+
 async function fetchCategories() {
   try {
       const response = await fetch('/api/categories');

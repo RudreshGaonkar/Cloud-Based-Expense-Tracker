@@ -1,6 +1,3 @@
-// backend/routes/userRoutes.js
-// This file defines the API endpoints for user operations
-
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
@@ -23,5 +20,6 @@ router.post('/logout',userController.logout);
 
 // Route to get the user's profile
 router.get('/profile', userController.getProfile);
+router.post('/change-password', userController.changePassword);
 
 module.exports = router;

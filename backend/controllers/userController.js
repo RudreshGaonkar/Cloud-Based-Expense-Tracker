@@ -111,6 +111,52 @@ const userController = {
       console.error('Error in userController.getProfile:', error);
       res.status(500).json({ message: 'Server error fetching profile' });
     }
+  },
+
+ changePassword: async (req, res) => {
+    try {
+      // Ensure user is logged in
+      if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+      }
+  
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.session.user.id;
+  
+      // Validate input
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Please provide current and new passwords' });
+      }
+  
+      // Find the user
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Verify current password
+      const isMatch = await bcrypt.compare(currentPassword, user.Password || user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+  
+      // Hash new password
+      const salt = await bcrypt.genSalt(10);
+      const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+  
+      // Update password in database
+      const pool = await poolPromise;
+      await pool.request()
+        .input('userId', sql.Int, userId)
+        .input('newPassword', sql.VarChar, hashedNewPassword)
+        .query('UPDATE Users SET Password = @newPassword WHERE Id = @userId');
+  
+      res.status(200).json({ message: 'Password updated successfully' });
+  
+    } catch (error) {
+      console.error('Error in changePassword:', error);
+      res.status(500).json({ message: 'Server error while changing password' });
+    }
   }
 };
 

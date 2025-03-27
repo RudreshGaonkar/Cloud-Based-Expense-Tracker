@@ -7,58 +7,101 @@
   <link rel="stylesheet" href="../assets/css/style.css" />
   <link rel="stylesheet" href="../assets/css/dashboard.css" />
   <link rel="stylesheet" href="../assets/css/responsive.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
-  <script src="../assets/js/auth.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      checkAuth();
-      fetch('./components/sidebar.html')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('sidebar').innerHTML = data;
-        })
-        .catch(error => console.error('Error loading sidebar:', error));
-    });
-  </script>
+  <link rel="stylesheet" href="../assets/css/profile.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 </head>
 <body>
   <div class="app-container">
-    <nav class="sidebar" id="sidebar">
-      
-    </nav>
     
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar"></nav>
+    
+    <!-- Main Content -->
     <div class="main-content">
+      
+      <!-- Top Bar -->
       <div class="topbar">
         <div class="toggle-sidebar"><i class="fas fa-bars"></i></div>
         <div class="user-info">
-          <div class="notifications">
-            <i class="fas fa-bell"></i>
-            <div class="badge">3</div>
-          </div>
           <div class="user-profile">
-            <span>John Doe</span>
-            <div class="avatar">JD</div>
+            <span id="user-name">Loading...</span>
+            <div class="avatar" id="user-avatar">...</div>
           </div>
         </div>
       </div>
       
+      <!-- Profile Header -->
       <header class="page-header">
         <h1>Your Profile</h1>
-        <p>Manage your account information</p>
+        <p>Manage your account information and security</p>
       </header>
       
-      <div class="card">
-        <div class="card-header">
-          <h3>Profile Details</h3>
+      <!-- Profile Section -->
+      <div class="profile-container">
+        <!-- Profile Details Card -->
+        <div class="card profile-details">
+          <div class="card-header">
+            <h3>Personal Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="profile-avatar-section">
+              <div class="avatar-large" id="large-user-avatar">...</div>
+            </div>
+            <div class="profile-info">
+              <p><strong>Name:</strong> <span id="profile-name">Loading...</span></p>    
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <p><strong>Name:</strong> John Doe</p>
-          <p><strong>Email:</strong> john.doe@example.com</p>
-          <!-- Add more profile details and edit options as needed -->
+
+        <!-- Change Password Card -->
+        <div class="card password-section">
+          <div class="card-header">
+            <h3>Change Password</h3>
+          </div>
+          <div class="card-body">
+            <form id="change-password-form">
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <div class="password-input-group">
+                  <input type="password" id="current-password" class="form-control" required />
+                  <button type="button" class="password-toggle" data-target="current-password">
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-password">New Password</label>
+                <div class="password-input-group">
+                  <input type="password" id="new-password" class="form-control" required />
+                  <button type="button" class="password-toggle" data-target="new-password">
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                </div>
+                <progress id="strengthBar" value="0" max="4"></progress>
+                <small id="password-strength-text" class="password-strength-text"></small>
+              </div>
+              <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <div class="password-input-group">
+                  <input type="password" id="confirm-password" class="form-control" required />
+                  <button type="button" class="password-toggle" data-target="confirm-password">
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-lock"></i> Update Password
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/sidebar.js"></script>
+  <script src="../assets/js/profile.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-console.log("✅ Checking stored user:", localStorage.getItem('user'));
+console.log("Checking stored user:", localStorage.getItem('user'));
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user && user.id ? user.id : null;

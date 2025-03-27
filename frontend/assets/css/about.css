@@ -1,0 +1,130 @@
+/* Team Section */
+.team-section {
+    margin-top: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .team-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .team-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+  
+  .team-card:hover {
+    transform: translateY(-10px);
+  }
+  
+  .team-card-avatar {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-light);
+  }
+  
+  .team-card-avatar i {
+    font-size: 200px;
+    color: var(--primary-color);
+  }
+  
+  .team-card-content {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .team-card-content h3 {
+    margin-bottom: 5px;
+    color: var(--primary-color);
+  }
+  
+  .team-card-content p {
+    color: var(--text-light);
+    margin-bottom: 10px;
+  }
+  
+  .team-card-skills {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .team-card-skills span {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  
+  .team-card-socials {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .team-card-socials a {
+    color: var(--text-color);
+    font-size: 20px;
+    transition: color 0.3s;
+  }
+  
+  .team-card-socials a:hover {
+    color: var(--primary-color);
+  }
+  
+  .github-link {
+    color: black;
+  }
+  
+  .project-repo-card {
+    grid-column: span 4; /* Span full width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 50%; /* Set to 50% width */
+    margin: 0 auto; /* Center the card */
+  }
+  
+  .project-repo-content {
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .project-repo-content h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+  }
+  
+  /* Responsive Design */
+  @media screen and (max-width: 1200px) {
+    .team-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  
+    .project-repo-card {
+      width: 100%; /* Full width on smaller screens */
+      grid-column: span 2;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .team-cards {
+      grid-template-columns: 1fr;
+    }
+  
+    .project-repo-card {
+      grid-column: span 1;
+    }
+  }

@@ -18,14 +18,11 @@
         .then(response => response.text())
         .then(data => {
           document.getElementById('sidebar').innerHTML = data;
-          // Highlight active sidebar item
-          const currentPage = window.location.pathname.split('/').pop();
           const activeLink = document.querySelector(`.sidebar-link[href*="reports"]`);
           if (activeLink) activeLink.classList.add('active');
         })
         .catch(error => console.error('Error loading sidebar:', error));
-      
-      // Initialize toggle sidebar functionality
+
       document.querySelector('.toggle-sidebar').addEventListener('click', () => {
         document.querySelector('.app-container').classList.toggle('sidebar-collapsed');
       });
@@ -34,54 +31,24 @@
 </head>
 <body>
   <div class="app-container">
-    <nav class="sidebar" id="sidebar">
-      <!-- Sidebar content will be loaded dynamically -->
-    </nav>
+    <nav class="sidebar" id="sidebar"></nav>
    
     <div class="main-content">
       <div class="topbar">
         <div class="toggle-sidebar"><i class="fas fa-bars"></i></div>
         <div class="user-info">
-          <div class="notifications">
-            <i class="fas fa-bell"></i>
-            <div class="badge">3</div>
-          </div>
           <div class="user-profile">
-            <span id="username">John Doe</span>
-            <div class="avatar" id="avatar">JD</div>
+            <span id="user-name">Loading...</span>
+            <div class="avatar" id="user-avatar">...</div>
           </div>
         </div>
       </div>
      
       <header class="page-header">
-        <h1>Financial Reports</h1>
-        <p>Analyze your spending habits and financial trends</p>
+        <h1>Financial Report</h1>
+        <p>Analyze your financial report</p>
       </header>
-      
-      <div class="report-controls">
-        <div class="filter-group">
-          <label for="report-period">Time Period:</label>
-          <select id="report-period" class="form-control">
-            <option value="current-month">Current Month</option>
-            <option value="last-month">Last Month</option>
-            <option value="last-3-months">Last 3 Months</option>
-            <option value="last-6-months">Last 6 Months</option>
-            <option value="year-to-date">Year to Date</option>
-            <option value="last-year">Last Year</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="report-type">Report Type:</label>
-          <select id="report-type" class="form-control">
-            <option value="category">By Category</option>
-            <option value="monthly">Monthly Comparison</option>
-            <option value="trend">Spending Trend</option>
-          </select>
-        </div>
-        <button id="generate-report" class="btn btn-primary">Generate Report</button>
-        <button id="export-pdf" class="btn btn-outline"><i class="fas fa-file-pdf"></i> Export PDF</button>
-      </div>
-     
+
       <div class="dashboard-grid">
         <div class="card summary-card">
           <div class="card-header">
@@ -105,14 +72,10 @@
                 <div class="metric-value" id="expense-count">0</div>
                 <div class="metric-label">Transactions</div>
               </div>
-              <div class="metric">
-                <div class="metric-value trend-up" id="trend"><i class="fas fa-arrow-up"></i> 0%</div>
-                <div class="metric-label">vs Previous</div>
-              </div>
             </div>
           </div>
         </div>
-        
+
         <div class="card">
           <div class="card-header">
             <h3>Expense Breakdown by Category</h3>
@@ -121,22 +84,36 @@
             <canvas id="reportChart" style="width:100%; height:300px;"></canvas>
           </div>
         </div>
-        
-        <!-- For Monthly/Daily/Weekly Trend -->
+
         <div class="card">
           <div class="card-header">
-            <h3>Spending Trend</h3>
+            <h3>Spending</h3>
           </div>
           <div class="card-body chart-container">
             <canvas id="trendChart" style="width:100%; height:300px;"></canvas>
           </div>
         </div>
-        
+
         <div class="card">
           <div class="card-header">
-            <h3>Daily/Weekly/Monthly/Yearly Summary</h3>
+            <h3>Daily/Wekkly/Monthly/Yearly Transactions</h3>
           </div>
+
+          <div class="filter-container">
+            <label for="filter-date">Select Date:</label>
+            <input type="date" id="filter-date">
+
+            <label for="filter-month">Select Month:</label>
+            <input type="month" id="filter-month">
+
+            <label for="filter-year">Select Year:</label>
+            <input type="number" id="filter-year" min="2000" max="2100" placeholder="YYYY">
+
+            <button id="apply-filters" class="btn btn-primary">Apply Filters</button>
+          </div>
+
           <div class="card-body">
+            <h3>If you want to filter by month then you have to specify year, ("In that You can ignore date")</h3>
             <div class="table-responsive">
               <table class="data-table" id="expenses-table">
                 <thead>
@@ -147,32 +124,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Rows will be dynamically added here -->
+                  <!-- Data will be dynamically loaded here -->
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      
-      <!-- <div class="card">
-        <div class="card-header">
-          <h3>Insights & Recommendations</h3>
-        </div>
-        <div class="card-body">
-          <div id="insights-container">
-            <div class="insight-item">
-              <div class="insight-icon"><i class="fas fa-lightbulb"></i></div>
-              <div class="insight-content">
-                <h4>Loading insights...</h4>
-                <p>Please wait while we analyze your spending patterns.</p>
-              </div>
+
+            <div class="table-buttons">
+              <button id="export-pdf" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Export PDF</button>
+              <button id="export-csv" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</button>
+              <button id="clear-filters" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filters</button>
             </div>
           </div>
         </div>
-      </div> -->
+      </div>
+
     </div>
   </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script src="../assets/js/report.js"></script>
   <script>
     alert("✅ User stored in localStorage:"+ localStorage.getItem('user'));

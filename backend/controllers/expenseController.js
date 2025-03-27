@@ -1,6 +1,6 @@
 const { poolPromise, sql } = require('../config/db');
 
-// ✅ Function to fetch paginated expenses
+// Function to fetch paginated expenses
 const getPaginatedExpenses = async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -40,14 +40,14 @@ const getPaginatedExpenses = async (req, res) => {
             totalExpenses
         });
     } catch (error) {
-        console.error("❌ Error fetching paginated expenses:", error);
+        console.error(" Error fetching paginated expenses:", error);
         res.status(500).json({ message: "Error fetching expenses" });
     }
 };
 
 
 
-// ✅ Function to delete an expense
+//  Function to delete an expense
 const deleteExpense = async (req, res) => {
     try {
         const expenseId = req.params.id;
@@ -71,7 +71,7 @@ const deleteExpense = async (req, res) => {
     }
 };
 
-// ✅ Function to add a new expense
+// Function to add a new expense
 const addExpense = async (req, res) => {
     try {
         const { userId, categoryId, amount, date, title, notes  } = req.body;
@@ -95,7 +95,7 @@ const addExpense = async (req, res) => {
 
         res.status(201).json({ message: "Expense added successfully" });
     } catch (error) {
-        console.error("❌ Error adding expense:", error);
+        console.error(" Error adding expense:", error);
         res.status(500).json({ message: "Error adding expense" });
     }
 };
@@ -127,11 +127,10 @@ const updateExpense = async (req, res) => {
         `);
       res.json(result.recordset[0]);
     } catch (error) {
-      console.error("❌ Error updating expense:", error);
+      console.error(" Error updating expense:", error);
       res.status(500).json({ message: "Error updating expense", error: error.message });
     }
   };
 
 
-// ✅ Export all functions properly
 module.exports = { addExpense, getPaginatedExpenses, deleteExpense, updateExpense };

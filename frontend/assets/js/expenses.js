@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     fetchCategories();
-    fetchExpenses(1); // Load first page by default
+    loadUserInfo();
+    fetchExpenses(1); 
 
-    // Attach event listener for delete buttons dynamically
     document.getElementById('expensesTableBody').addEventListener('click', async (event) => {
         if (event.target.closest('.delete-expense')) {
             const expenseId = event.target.closest('.delete-expense').getAttribute('data-id');
@@ -33,7 +33,7 @@ async function deleteExpense(expenseId) {
 
         if (response.ok) {
             alert("Expense deleted successfully!");
-            fetchExpenses(currentPage); // ✅ Reload the current page instead of resetting to Page 1
+            fetchExpenses(currentPage); 
         } else {
             alert("Failed to delete expense.");
         }
@@ -42,7 +42,7 @@ async function deleteExpense(expenseId) {
     }
 }
 
-// Function to fetch categories and populate the dropdown
+// Function to fetch categories 
 async function fetchCategories() {
     try {
         const response = await fetch('/api/categories');
@@ -51,7 +51,7 @@ async function fetchCategories() {
         const categories = await response.json();
         const categorySelect = document.getElementById('expense-category');
 
-        if (!categorySelect) return; // ✅ Prevents errors if element is missing
+        if (!categorySelect) return; 
 
         categorySelect.innerHTML = '<option value="">Select Category</option>';
         categories.forEach(category => {
@@ -65,7 +65,7 @@ async function fetchCategories() {
     }
 }
 
-// Function to fetch expenses with pagination
+
 let currentPage = 1;
 
 async function fetchExpenses(page = 1) {
@@ -85,7 +85,7 @@ async function fetchExpenses(page = 1) {
         updateExpenseTable(data.expenses);
         updatePagination(data.currentPage, data.totalPages);
 
-        currentPage = data.currentPage; // ✅ Update current page after fetching
+        currentPage = data.currentPage; 
     } catch (error) {
         console.error("❌ Error fetching expenses:", error);
         displayNoExpenses();
@@ -95,7 +95,7 @@ async function fetchExpenses(page = 1) {
 // Function to update expenses table
 function updateExpenseTable(expenses) {
     const tableBody = document.getElementById('expensesTableBody');
-    if (!tableBody) return; // ✅ Prevents errors if table is missing
+    if (!tableBody) return;
 
     tableBody.innerHTML = '';
 
@@ -127,7 +127,7 @@ function updateExpenseTable(expenses) {
 // Function to display "No Expenses Found" message
 function displayNoExpenses() {
     const tableBody = document.getElementById('expensesTableBody');
-    if (!tableBody) return; // ✅ Prevents errors if table is missing
+    if (!tableBody) return; 
 
     tableBody.innerHTML = `
         <tr>
@@ -139,11 +139,11 @@ function displayNoExpenses() {
 // Function to update pagination controls
 function updatePagination(currentPage, totalPages) {
     const paginationControls = document.querySelector('.pagination-controls');
-    if (!paginationControls) return; // ✅ Prevents errors if element is missing
+    if (!paginationControls) return; 
 
     paginationControls.innerHTML = '';
 
-    if (totalPages <= 1) return; // No pagination needed
+    if (totalPages <= 1) return; 
 
     // Previous button
     const prevButton = document.createElement('button');
@@ -163,7 +163,7 @@ function updatePagination(currentPage, totalPages) {
         paginationControls.appendChild(pageButton);
     }
 
-    // Next button
+ 
     const nextButton = document.createElement('button');
     nextButton.className = 'btn-icon';
     nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
@@ -172,49 +172,15 @@ function updatePagination(currentPage, totalPages) {
     paginationControls.appendChild(nextButton);
 }
 
-// Function to add a new expense
-// document.getElementById('expenseForm')?.addEventListener('submit', async (event) => {
-//     event.preventDefault();
 
-//     const userId = localStorage.getItem('user');
-//     const title = document.getElementById('expense-title').value;
-//     const amount = document.getElementById('expense-amount').value;
-//     const categoryId = document.getElementById('expense-category').value;
-//     const date = document.getElementById('expense-date').value;
-//     const notes = document.getElementById('expense-notes').value;
-
-//     if (!userId || !title || !amount || !categoryId || !date) {
-//         alert('⚠️ Please fill in all required fields.');
-//         return;
-//     }
-
-//     try {
-//         const response = await fetch('/api/expenses', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ userId, title, amount, categoryId, date, notes })
-//         });
-
-//         if (response.ok) {
-//             alert("✅ Expense added successfully!");
-//             fetchExpenses(1); // ✅ Reload first page
-//             document.getElementById('expenseForm').reset();
-//             document.getElementById('expenseFormCard').style.display = 'none';
-//         } else {
-//             alert("❌ Failed to add expense.");
-//         }
-//     } catch (error) {
-//         console.error("❌ Error adding expense:", error);
-//     }
-// });
 document.getElementById('expenseForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    // Retrieve the user object stored as JSON and extract the id
+ 
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const userId = storedUser ? storedUser.id : null;
 
-    // Trim inputs to avoid whitespace issues
+
     const title = document.getElementById('expense-title').value.trim();
     const amount = document.getElementById('expense-amount').value.trim();
     const categoryId = document.getElementById('expense-category').value.trim();
@@ -222,7 +188,7 @@ document.getElementById('expenseForm')?.addEventListener('submit', async (event)
     const notes = document.getElementById('expense-notes').value.trim();
 
     if (!userId || !title || !amount || !categoryId || !date) {
-        alert('⚠️ Please fill in all required fields.');
+        alert('Please fill in all required fields.');
         return;
     }
 
@@ -234,55 +200,50 @@ document.getElementById('expenseForm')?.addEventListener('submit', async (event)
         });
 
         if (response.ok) {
-            alert("✅ Expense added successfully!");
+            alert("Expense added successfully!");
             fetchExpenses(1); // Reload first page
             document.getElementById('expenseForm').reset();
             document.getElementById('expenseFormCard').style.display = 'none';
         } else {
-            alert("❌ Failed to add expense.");
+            alert("Failed to add expense.");
         }
     } catch (error) {
-        console.error("❌ Error adding expense:", error);
+        console.error("Error adding expense:", error);
     }
 });
 
 
-// Attach event listener for edit buttons in the expenses table
 document.getElementById('expensesTableBody').addEventListener('click', (event) => {
     const editBtn = event.target.closest('.edit-expense');
     if (editBtn) {
       const expenseId = editBtn.getAttribute('data-id');
-      // Get the corresponding row to extract current values
+
       const row = editBtn.closest('tr');
       const title = row.cells[0].textContent.trim();
-      // Remove INR symbol if present, and parse as number
+
       const amount = parseFloat(row.cells[1].textContent.replace('₹', '').trim());
       const categoryText = row.cells[2].textContent.trim();
       const dateText = row.cells[3].textContent.trim();
-      
-      // Pre-fill the edit form fields
+
       document.getElementById('edit-expense-id').value = expenseId;
       document.getElementById('edit-expense-title').value = title;
       document.getElementById('edit-expense-amount').value = amount;
       
-      // For category, if your select options have values as category IDs,
-      // you may need to convert categoryText to its corresponding ID.
-      // For now, we assume the select options display the category name.
+
       document.getElementById('edit-expense-category').value = categoryText;
       
-      // For date, you might need to reformat the displayed date into 'YYYY-MM-DD'
-      // Here, we assume the row's date is already in a format that works, or you can reformat it.
+
       document.getElementById('edit-expense-date').value = dateText;
       
-      // Optionally, clear or prefill notes (if available). For now, we'll leave it blank.
+
       document.getElementById('edit-expense-notes').value = '';
       
-      // Show the edit modal
+
       document.getElementById('editExpenseModal').style.display = 'block';
     }
   });
   
-  // Attach event listeners for closing the modal
+
   document.getElementById('editCloseModal').addEventListener('click', closeEditModal);
   document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
   
@@ -290,7 +251,7 @@ document.getElementById('expensesTableBody').addEventListener('click', (event) =
     document.getElementById('editExpenseModal').style.display = 'none';
   }
   
-  // Handle the submission of the edit form
+
   document.getElementById('editExpenseForm').addEventListener('submit', async (event) => {
     event.preventDefault();
   
@@ -302,29 +263,39 @@ document.getElementById('expensesTableBody').addEventListener('click', (event) =
     const notes = document.getElementById('edit-expense-notes').value.trim();
   
     if (!expenseId || !title || !amount || !categoryId || !date) {
-      alert('⚠️ Please fill in all required fields.');
+      alert('Please fill in all required fields.');
       return;
     }
   
     try {
       const response = await fetch(`/api/expenses/${expenseId}`, {
-        method: 'PUT', // or PATCH, depending on your API
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, amount, categoryId, date, notes })
       });
   
       if (response.ok) {
-        alert("✅ Expense updated successfully!");
-        // Optionally, refresh the expenses list
-        // For example, call fetchExpenses(currentPage) if you have that function.
+        alert("Expense updated successfully!");
+
         closeEditModal();
-        // Refresh your table here
+
         fetchExpenses(currentPage); 
       } else {
-        alert("❌ Failed to update expense.");
+        alert("Failed to update expense.");
       }
     } catch (error) {
-      console.error("❌ Error updating expense:", error);
+      console.error("Error updating expense:", error);
     }
   });
-  
+async function loadUserInfo() {
+    try {
+        const response = await fetch('/api/users/profile', { credentials: 'include' });
+        if (!response.ok) throw new Error("Failed to fetch user profile");
+
+        const data = await response.json();
+        document.getElementById('user-name').textContent = data.user.name;
+        document.getElementById('user-avatar').textContent = data.user.name.charAt(0).toUpperCase();
+    } catch (error) {
+        console.error("Error loading user info:", error);
+    }
+}

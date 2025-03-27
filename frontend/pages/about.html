@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About - CloudBased Expense Tracker</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../assets/css/responsive.css" />
+  <link rel="stylesheet" href="../assets/css/about.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="app-container">
+    
+
+    <nav class="sidebar" id="sidebar"></nav>
+    
+
+    <div class="main-content">
+      
+
+      <div class="topbar">
+        <div class="toggle-sidebar"><i class="fas fa-bars"></i></div>
+        <div class="user-profile">
+          <span id="user-name">Loading...</span>
+          <div class="avatar" id="user-avatar">...</div>
+        </div>
+      </div>
+
+      <header class="page-header">
+        <h1>Smugglers</h1>
+        <p>CC Assignment</p>
+      </header>
+
+      
+ 
+      <div class="team-section">
+        <div class="team-cards">
+
+          <div class="team-card">
+            <div class="team-card-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="team-card-content">
+              <h3>Rudresh R. Gaonkar</h3>
+              <p>Stargazer 🔭✨</p>
+              <div class="team-card-skills">
+                <span>Node.js</span>
+                <span>Azure</span>
+              </div>
+              <div class="team-card-socials">
+                <a href="https://github.com/RudreshGaonkar" class="github-link">
+                  <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/rudresh-gaonkar-97a602312?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="linkedin-link">
+                  <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://www.instagram.com/_lester_fernandes?igsh=dmVubjU3cG44ZGRm" class="linkedin-link">
+                  <i class="fa-brands fa-square-instagram"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="team-card">
+            <div class="team-card-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="team-card-content">
+              <h3>Cajetan Fernandes</h3>
+              <p>Chill Guy</p>
+              <div class="team-card-skills">
+                <span>Node.js</span>
+                <span>Azure</span>
+              </div>
+              <div class="team-card-socials">
+                <a href="https://www.linkedin.com/in/cajetan-fernandes-904aa7256?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="linkedin-link">
+                  <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://www.instagram.com/_lester_fernandes?igsh=dmVubjU3cG44ZGRm" class="linkedin-link">
+                  <i class="fa-brands fa-square-instagram"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-card">
+            <div class="team-card-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="team-card-content">
+              <h3>Sohil Jadhav</h3>
+              <p>I know am short but am not middle schooler</p>
+              <div class="team-card-skills">
+                <span>Node.js</span>
+                <span>Azure</span>
+              </div>
+              <div class="team-card-socials">
+                <a href="https://www.linkedin.com/in/sohil-jadhav-84804823a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="linkedin-link">
+                  <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://www.instagram.com/_lester_fernandes?igsh=dmVubjU3cG44ZGRm" class="linkedin-link">
+                  <i class="fa-brands fa-square-instagram"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="team-card">
+            <div class="team-card-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="team-card-content">
+              <h3>Lester Fernandes</h3>
+              <p>Big bank Account</p>
+              <div class="team-card-skills">
+                <span>Node.js</span>
+                <span>Azure</span>
+              </div>
+              <div class="team-card-socials">
+                <a href="https://www.instagram.com/_lester_fernandes?igsh=dmVubjU3cG44ZGRm" class="linkedin-link">
+                  <i class="fa-brands fa-square-instagram"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="team-card project-repo-card">
+            <div class="project-repo-content">
+              <h3>Project Repository</h3>
+              <p>Explore our project </p>
+              <a href="https://github.com/RudreshGaonkar/Cloud-Based-Expense-Tracker" class="btn btn-primary" target="_blank">
+                <i class="fab fa-github"></i> View Project Repo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserInfo();
+    });
+
+    async function loadUserInfo() {
+      try {
+          const response = await fetch('/api/users/profile', { credentials: 'include' });
+          if (!response.ok) throw new Error("Failed to fetch user profile");
+
+          const data = await response.json();
+          document.getElementById('user-name').textContent = data.user.name;
+          document.getElementById('user-avatar').textContent = data.user.name.charAt(0).toUpperCase();
+      } catch (error) {
+          console.error("❌ Error loading user info:", error);
+      }
+    }
+  </script>
+</body>
+</html>

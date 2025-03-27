@@ -4,10 +4,10 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-// Import database connection
+
 const { poolPromise, sql } = require('./config/db');
 
-// Import API routes
+
 const userRoutes = require('./routes/userRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -17,7 +17,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware to parse JSON and URL-encoded bodies
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -36,14 +36,14 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));  
 app.use('/pages', express.static(path.join(__dirname, '../frontend/pages')));
 
-// ✅ Fix MIME types (Moved above API routes)
+
 app.use((req, res, next) => {
   if (req.path.endsWith('.css')) res.type('text/css');
   if (req.path.endsWith('.js')) res.type('application/javascript');
   next();
 });
 
-// ✅ Mount API routes under /api
+
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
@@ -59,7 +59,7 @@ app.get('*', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
-// ✅ Start the server
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
@@ -81,10 +81,10 @@ async function initializeDatabase() {
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users')
       BEGIN
         CREATE TABLE Users (
-          Id INT IDENTITY(1,1) PRIMARY KEY,
-          Name VARCHAR(100),
-          Email VARCHAR(100) UNIQUE,
-          Password VARCHAR(255)
+          id INT IDENTITY(1,1) PRIMARY KEY,
+          name VARCHAR(100),
+          email VARCHAR(100) UNIQUE,
+          password VARCHAR(255)
         )
       END
     `);
@@ -95,11 +95,11 @@ async function initializeDatabase() {
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Expenses')
       BEGIN
         CREATE TABLE Expenses (
-          Id INT IDENTITY(1,1) PRIMARY KEY,
-          UserId INT,
-          Title VARCHAR(255),
-          Amount DECIMAL(18,2),
-          Category VARCHAR(100),
+          id INT IDENTITY(1,1) PRIMARY KEY,
+          userId INT,
+          title VARCHAR(255),
+          amount DECIMAL(18,2),
+          categoryId INT FOREIGN KEY REFERENCES Categories(id),
           Date DATE,
           Notes VARCHAR(255)
         )
@@ -111,10 +111,8 @@ async function initializeDatabase() {
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Categories')
       BEGIN
         CREATE TABLE Categories (
-          Id INT IDENTITY(1,1) PRIMARY KEY,
-          UserId INT,
-          Name VARCHAR(100),
-          Color VARCHAR(50)
+          id INT IDENTITY(1,1) PRIMARY KEY,
+          name VARCHAR(100),
         )
       END
     `);

@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="../assets/css/responsive.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <!-- Load Chart.js first before other scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="../assets/js/auth.js"></script>
@@ -19,7 +18,7 @@
 <body>
   <div class="app-container">
     <nav class="sidebar" id="sidebar">
-      <!-- Sidebar content will be loaded dynamically -->
+
     </nav>
 
     <div class="main-content">
@@ -72,13 +71,13 @@
       <div class="card chart-card">
         <div class="card-header">
           <h3>Expense Overview</h3>
-          <div class="chart-filter">
-            <select id="chart-period">
+          <div class="chart-filter" id="chart-period">
+            <!-- <select id="chart-period">
               <option value="7">Last 7 Days</option>
               <option value="30" selected>Last 30 Days</option>
               <option value="90">Last 3 Months</option>
               <option value="365">Last Year</option>
-            </select>
+            </select> -->
           </div>
         </div>
         <div class="card-body">
@@ -100,7 +99,7 @@
                   <th>Category</th>
                   <th>Amount</th>
                   <th>Date</th>
-                  <th>Actions</th>
+                  <!-- <th>Actions</th> -->
                 </tr>
               </thead>
               <tbody id="recent-expenses-table">
