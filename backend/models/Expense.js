@@ -20,7 +20,7 @@ async function createExpense(userId, categoryId, title, amount, date, descriptio
             .input('description', sql.NVarChar(150), description)
             .query(query);
 
-        return result.recordset[0]; // Return inserted expense
+        return result.recordset[0];
     } catch (error) {
         console.error('❌ Database Error (Create Expense):', error);
         throw error;

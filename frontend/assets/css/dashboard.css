@@ -271,15 +271,15 @@
 }
 
 /* Toggle Sidebar */
-.toggle-sidebar {
+/* .toggle-sidebar {
   display: none;
   width: 24px;
   height: 24px;
   position: relative;
   cursor: pointer;
-}
+} */
 
-.toggle-sidebar:before,
+/* .toggle-sidebar:before,
 .toggle-sidebar:after {
   content: '';
   position: absolute;
@@ -288,15 +288,15 @@
   background-color: var(--text-color);
   left: 0;
   transition: all 0.3s ease;
-}
+} */
 
-.toggle-sidebar:before {
+/* .toggle-sidebar:before {
   top: 8px;
 }
 
 .toggle-sidebar:after {
   top: 16px;
-}
+} */
 
 /* Responsive Adjustments */
 @media screen and (max-width: 992px) {
@@ -314,9 +314,9 @@
     left: 0;
   }
   
-  .toggle-sidebar {
+  /* .toggle-sidebar {
     display: block;
-  }
+  } */
   
   .app-container.sidebar-collapsed .sidebar {
     transform: translateX(0);

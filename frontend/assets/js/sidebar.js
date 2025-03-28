@@ -25,3 +25,27 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(error => console.error("Sidebar load error:", error));
 });
+
+function logoutUser() {
+  const logoutBtn = document.querySelector('.logout-btn');
+  if (logoutBtn) {
+    logoutBtn.disabled = true;
+  }
+  
+  fetch('/api/users/logout', {
+    method: 'POST',
+    credentials: 'include' 
+  })
+  .then(response => response.json())
+  .then(data => {
+    localStorage.removeItem('user');
+    window.location.href = '../../index.html'; 
+  })
+  .catch(error => {
+    console.error('Error during logout:', error);
+    alert('Logout failed. Please try again.');
+    if (logoutBtn) {
+      logoutBtn.disabled = false;
+    }
+  });
+}

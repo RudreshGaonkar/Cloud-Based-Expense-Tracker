@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+  setupPasswordFeatures();
+  
   // ---------- Login Form Handling ----------
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
@@ -216,4 +219,29 @@ window.checkAuth = checkAuth;
 
 if (!window.location.pathname.includes('../../index.html')) {
   checkAuth();
+}
+
+function setupPasswordFeatures() {
+  const passwordInput = document.getElementById('reg-password');
+  const strengthBar = document.getElementById('strengthBar');
+  // const strengthText = document.getElementById('password-strength-text');
+
+
+  passwordInput.addEventListener('input', () => {
+    const password = passwordInput.value;
+    const strength = calculatePasswordStrength(password);
+    
+    strengthBar.value = strength;
+
+  });
+}
+
+function calculatePasswordStrength(password) {
+  let strength = 0;
+  if (password.length >= 8) strength++;
+  if (password.match(/[a-z]+/)) strength++;
+  if (password.match(/[A-Z]+/)) strength++;
+  if (password.match(/[0-9]+/)) strength++;
+  if (password.match(/[$@#&!]+/)) strength++;
+  return Math.min(strength, 4);
 }

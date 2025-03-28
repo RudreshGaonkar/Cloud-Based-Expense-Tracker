@@ -103,7 +103,7 @@ function updateExpenseTable(expenses) {
         displayNoExpenses();
         return;
     }
-
+//<i class="fas fa-edit"></i>
     expenses.forEach(expense => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -113,7 +113,7 @@ function updateExpenseTable(expenses) {
             <td>${new Date(expense.date).toLocaleDateString()}</td>
             <td class="actions">
                 <button class="btn-icon edit-expense" data-id="${expense.id}">
-                    <i class="fas fa-edit"></i>
+                    
                 </button>
                 <button class="btn-icon delete-expense" data-id="${expense.id}">
                     <i class="fas fa-trash"></i>

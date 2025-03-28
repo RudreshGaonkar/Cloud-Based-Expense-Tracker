@@ -1,9 +1,8 @@
-// backend/controllers/userController.js
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 const userController = {
-  // 🟢 User Registration
+
   register: async (req, res) => {
     try {
       const { name, email, password } = req.body;
@@ -37,7 +36,7 @@ const userController = {
     }
   },
 
-  // 🟢 User Login
+
   login : async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -51,7 +50,6 @@ const userController = {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // Check password field (handle possible case differences)
         const hashedPassword = user.Password || user.password;
 
         // Compare password
@@ -60,7 +58,7 @@ const userController = {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // ✅ Save user in session
+        // Save user in session
         req.session.user = {
             id: user.Id || user.id,
             email: user.Email || user.email,
@@ -83,7 +81,7 @@ const userController = {
     }
 },
   
-  // 🟢 User Logout
+
   logout: (req, res) => {
     try {
       req.session.destroy((err) => {
@@ -100,7 +98,7 @@ const userController = {
     }
   },
 
-  // 🟢 Get User Profile
+
   getProfile: async (req, res) => {
     try {
       if (req.session && req.session.user) {
