@@ -11,7 +11,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 8080 || 5000;
+const PORT = process.env.PORT || 8080;
 
 
 app.use(bodyParser.json());
