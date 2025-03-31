@@ -35,19 +35,85 @@ exports.getExpenseTrends = async (req, res) => {
         }
 
         const userId = req.session.user.id;
+        const period = req.query.period || 'monthly'; 
         const pool = await poolPromise;
+        let query = '';
+        const currentYear = new Date().getFullYear();
+
+        switch(period) {
+            case 'daily':
+                query = `
+                    SELECT FORMAT(date, 'yyyy-MM-dd') AS day, SUM(amount) AS total
+                    FROM Expenses
+                    WHERE userId = @userId AND date >= DATEADD(day, -30, GETDATE())
+                    GROUP BY FORMAT(date, 'yyyy-MM-dd')
+                    ORDER BY day;
+                `;
+                break;
+            case 'weekly':
+                query = `
+                    SELECT 
+                        DATEPART(YEAR, date) AS year,
+                        DATEPART(WEEK, date) AS week_number,
+                        'Week ' + CAST(DATEPART(WEEK, date) AS VARCHAR) AS week, 
+                        SUM(amount) AS total
+                    FROM Expenses
+                    WHERE userId = @userId 
+                      AND DATEPART(YEAR, date) = ${currentYear}
+                      AND date >= DATEADD(WEEK, -10, GETDATE())
+                    GROUP BY DATEPART(YEAR, date), DATEPART(WEEK, date)
+                    ORDER BY year, week_number;
+                `;
+                break;
+            case 'monthly':
+                query = `
+                    SELECT FORMAT(date, 'yyyy-MM') AS month, SUM(amount) AS total
+                    FROM Expenses
+                    WHERE userId = @userId
+                      AND DATEPART(YEAR, date) = ${currentYear}
+                    GROUP BY FORMAT(date, 'yyyy-MM')
+                    ORDER BY month;
+                `;
+                break;
+            case 'yearly':
+                query = `
+                    SELECT 
+                        DATEPART(YEAR, date) AS year,
+                        SUM(amount) AS total
+                    FROM Expenses
+                    WHERE userId = @userId
+                    GROUP BY DATEPART(YEAR, date)
+                    ORDER BY year;
+                `;
+                break;
+            default:
+                query = `
+                    SELECT FORMAT(date, 'yyyy-MM') AS month, SUM(amount) AS total
+                    FROM Expenses
+                    WHERE userId = @userId
+                    GROUP BY FORMAT(date, 'yyyy-MM')
+                    ORDER BY month;
+                `;
+        }
 
         const result = await pool.request()
             .input('userId', sql.Int, userId)
-            .query(`
-                SELECT FORMAT(date, 'yyyy-MM') AS month, SUM(amount) AS total
-                FROM Expenses
-                WHERE userId = @userId
-                GROUP BY FORMAT(date, 'yyyy-MM')
-                ORDER BY month;
-            `);
+            .query(query);
 
-        console.log("📊 Expense Trends Data:", result.recordset);
+
+        if (period === 'weekly') {
+            result.recordset.forEach(record => {
+
+                const firstDayOfYear = new Date(record.year, 0, 1);
+                const dayOfWeek = (record.week_number - 1) * 7;
+                const approxDate = new Date(firstDayOfYear);
+                approxDate.setDate(firstDayOfYear.getDate() + dayOfWeek);
+             
+                record.monthName = approxDate.toLocaleString('default', { month: 'long' });
+            });
+        }
+
+        console.log(`📊 ${period.charAt(0).toUpperCase() + period.slice(1)} Expense Trends Data:`, result.recordset);
         res.json(result.recordset || []);
     } catch (error) {
         console.error("❌ Error fetching expense trends:", error);
@@ -106,5 +172,66 @@ exports.getRecentExpenses = async (req, res) => {
     } catch (error) {
         console.error("❌ Error fetching recent expenses:", error);
         res.status(500).json({ message: "Error retrieving recent expenses", error: error.message });
+    }
+};
+
+exports.getIncomeExpenseSummary = async (req, res) => {
+    try {
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({ message: "Unauthorized. Please log in." });
+        }
+
+        const userId = req.session.user.id;
+        const period = req.query.period || 'month'; 
+        
+        const pool = await poolPromise;
+        let dateFilter = '';
+
+        switch(period) {
+            case 'month':
+                dateFilter = 'AND MONTH(e.date) = MONTH(GETDATE()) AND YEAR(e.date) = YEAR(GETDATE())';
+                break;
+            case 'quarter':
+                dateFilter = 'AND e.date >= DATEADD(QUARTER, -1, GETDATE())';
+                break;
+            case 'year':
+                dateFilter = 'AND YEAR(e.date) = YEAR(GETDATE())';
+                break;
+            case 'all':
+                dateFilter = '';
+                break;
+            default:
+                dateFilter = 'AND MONTH(e.date) = MONTH(GETDATE()) AND YEAR(e.date) = YEAR(GETDATE())';
+        }
+
+        const expenseQuery = `
+            SELECT COALESCE(SUM(e.amount), 0) AS totalExpenses
+            FROM Expenses e
+            WHERE e.userId = @userId ${dateFilter};
+        `;
+        
+        const incomeQuery = `
+            SELECT COALESCE(SUM(i.amount), 0) AS totalIncome
+            FROM Income i
+            WHERE i.userId = @userId ${dateFilter.replace(/e\./g, 'i.')};
+        `;
+        
+        const [expenseResult, incomeResult] = await Promise.all([
+            pool.request().input('userId', sql.Int, userId).query(expenseQuery),
+            pool.request().input('userId', sql.Int, userId).query(incomeQuery)
+        ]);
+        
+        const totalExpenses = expenseResult.recordset[0]?.totalExpenses || 0;
+        const totalIncome = incomeResult.recordset[0]?.totalIncome || 0;
+        
+        res.json({
+            totalExpenses,
+            totalIncome,
+            netSavings: totalIncome - totalExpenses,
+            period
+        });
+    } catch (error) {
+        console.error("❌ Error fetching income/expense summary:", error);
+        res.status(500).json({ message: "Error retrieving income/expense summary", error: error.message });
     }
 };

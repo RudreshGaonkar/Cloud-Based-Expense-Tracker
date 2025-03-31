@@ -4,12 +4,14 @@ const {
     getDashboardSummary,
     getExpenseTrends,
     getCategoryDistribution,
-    getRecentExpenses
+    getRecentExpenses,
+    getIncomeExpenseSummary
 } = require('../controllers/dashboardController');
 
 router.get('/summary', getDashboardSummary);
 router.get('/trends', getExpenseTrends);
 router.get('/categories', getCategoryDistribution);
 router.get('/recent', getRecentExpenses);
+router.get('/income-expense', getIncomeExpenseSummary);
 
 module.exports = router;

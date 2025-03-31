@@ -6,12 +6,12 @@
   <title>CloudBased Expense Tracker - Login</title>
   <link rel="stylesheet" href="assets/css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" /> -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <!-- <link rel="icon" type="image/png" href="assets/images/favicon.png" /> -->
   <script>
     const API_BASE_URL = 'http://localhost:5000/api';
   </script>
+  <!-- Add Google Sign-In API -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="login-page">
   <div class="login-container">
@@ -47,10 +47,21 @@
             </div>
           </form>
           <div class="login-divider">
+            <span>Or</span>
+          </div>
+          <!-- Google Sign-In Button -->
+          <div class="form-group">
+            <button id="googleLoginBtn" class="btn btn-google btn-block g_id_signin">
+              
+              Sign in with Google
+            </button>
+          </div>
+          <!-- End Google Sign-In Button -->
+          <div class="login-divider">
             <span>New to CloudBased?</span>
           </div>
           <div class="form-group">
-            <button id="registerBtn" class="btn btn-outline btn-block">
+            <button id="registerBtn" class="btn btn-outline btn-block ">
               <i class="fas fa-user-plus"></i> Create an Account
             </button>
           </div>
@@ -75,20 +86,38 @@
         </div>
         <div class="form-group">
           <label for="reg-password"><i class="fas fa-lock"></i> Password</label>
-          <input type="password" id="reg-password" name="password" placeholder="Create a strong password" required />
+          <div style="position: relative;">
+            <input type="password" id="reg-password" name="password" placeholder="Create a strong password" required />
+            <button type="button" class="password-toggle" data-target="reg-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+              <i class="fas fa-eye-slash"></i>
+            </button>
+          </div>
           <progress id="strengthBar" value="0" max="4"></progress>
-          <small class="password-hint">Use 8+ characters with letters, numbers & symbols</small>
+          <small class="password-hint">Password must have 8+ characters with at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)</small>
         </div>
+        
         <div class="form-group">
           <label for="reg-confirm-password"><i class="fas fa-check-circle"></i> Confirm Password</label>
-          <input type="password" id="reg-confirm-password" name="confirmPassword" placeholder="Confirm your password" required />
-        </div>
+          <div style="position: relative;">
+            <input type="password" id="reg-confirm-password" name="confirmPassword" placeholder="Confirm your password" required />
+            <button type="button" class="password-toggle" data-target="reg-confirm-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+              <i class="fas fa-eye-slash"></i>
+            </button>
+          </div>
         <div class="form-group">
           <button type="submit" class="btn btn-primary btn-block">Create Account</button>
         </div>
       </form>
     </div>
   </div>
+
+  <!-- Google Sign-In Container -->
+  <div id="g_id_onload"
+     data-client_id="8xb.apps.googleusercontent.com"
+     data-callback="handleGoogleSignIn"
+     data-auto_prompt="false">
+  </div>
+
   <script src="assets/js/auth.js"></script>
 </body>
 </html>

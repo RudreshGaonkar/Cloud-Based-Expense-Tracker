@@ -3,70 +3,74 @@
 </div>
 <div class="sidebar-menu">
   <ul>
-    <li><a href="dashboard.html" id="nav-dashboard"><i class="fas fa-tachometer-alt"></i> &nbsp; Dashboard</a></li>
-    <li><a href="expenses.html" id="nav-expenses"><i class="fas fa-money-bill-wave"></i> &nbsp; Expenses</a></li>
-    <li><a href="categories.html" id="nav-categories"><i class="fas fa-list"></i>&nbsp; Categories</a></li>
-    <li><a href="reports.html" id="nav-reports"><i class="fas fa-chart-pie"></i> &nbsp; Reports</a></li>
-    <li><a href="profile.html" id="nav-profile"><i class="fas fa-user"></i> &nbsp; Profile</a></li>
-    <li><a href="about.html" id="nav-settings"><i class="fa-solid fa-people-group"></i> &nbsp; Team</a></li>
+    <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> &nbsp; Dashboard</a></li>
+    <li><a href="expenses.html"><i class="fas fa-money-bill-wave"></i> &nbsp; Expenses</a></li>
+    <li><a href="categories.html"><i class="fas fa-list"></i>&nbsp; Categories</a></li>
+    <li><a href="income.html"><i class="fas fa-wallet"></i>&nbsp; Income</a></li>
+    <li><a href="reports.html"><i class="fas fa-chart-pie"></i> &nbsp; Reports</a></li>
+    <li><a href="profile.html"><i class="fas fa-user"></i> &nbsp; Profile</a></li>
+    <li><a href="about.html"><i class="fa-solid fa-people-group"></i> &nbsp; Team</a></li>
   </ul>
 </div>
 <div class="sidebar-footer">
-  <button onclick="logoutUser()" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  <button onclick="logoutUser()" class="btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
 </div>
 
 <style>
   .sidebar-menu ul li a.active {
-    background-color: var(--primary-color-light);
-    color: var(--primary-color);
-    border-left: 4px solid var(--primary-color);
-  }
-  
-  .sidebar-menu ul li a.active i {
-    color: var(--primary-color);
-  }
-
-  .sidebar-menu ul li:not(:first-child) a {
-    border-top: 1px solid var(--border-color);
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    border-radius: 0 30px 30px 0;
+    font-weight: bold;
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
 
-    const currentPage = window.location.pathname.split('/').pop();
+  window.addEventListener('load', function() {
+
+    console.log('Sidebar script running');
+    console.log('Current URL:', window.location.href);
+
+    const currentURL = window.location.href;
+    const urlParts = currentURL.split('/');
+    const currentFile = urlParts[urlParts.length - 1] || 'dashboard.html';
+    
+    console.log('Current file detected:', currentFile);
     
 
-    const menuItems = document.querySelectorAll('.sidebar-menu li a');
-    menuItems.forEach(item => {
-      item.classList.remove('active');
+    const menuLinks = document.querySelectorAll('.sidebar-menu ul li a');
+    console.log('Found menu links:', menuLinks.length);
+    
+
+    menuLinks.forEach(function(link) {
+
+      link.classList.remove('active');
+      
+      const linkHref = link.getAttribute('href');
+      console.log('Checking link:', linkHref);
+      
+
+      if (currentFile.includes(linkHref) || 
+          (currentFile === '' && linkHref === 'dashboard.html') ||
+          (currentFile === 'index.html' && linkHref === 'dashboard.html')) {
+        console.log('MATCH FOUND! Setting active:', linkHref);
+        link.classList.add('active');
+      }
     });
     
 
-    switch(currentPage) {
-      case 'dashboard.html':
-        document.getElementById('nav-dashboard').classList.add('active');
-        break;
-      case 'expenses.html':
-        document.getElementById('nav-expenses').classList.add('active');
-        break;
-      case 'categories.html':
-        document.getElementById('nav-categories').classList.add('active');
-        break;
-      case 'reports.html':
-        document.getElementById('nav-reports').classList.add('active');
-        break;
-      case 'profile.html':
-        document.getElementById('nav-profile').classList.add('active');
-        break;
-      case 'about.html':
-        document.getElementById('nav-settings').classList.add('active');
-        break;
-      default:
-        // If no specific page matches or we're on the home page, default to dashboard
-        if (currentPage === '' || currentPage === 'index.html') {
-          document.getElementById('nav-dashboard').classList.add('active');
-        }
+    const hasActive = document.querySelector('.sidebar-menu ul li a.active');
+    if (!hasActive && (currentFile === '' || currentFile === 'index.html')) {
+      const dashboardLink = document.querySelector('.sidebar-menu ul li a[href="dashboard.html"]');
+      if (dashboardLink) {
+        console.log('Fallback: Setting dashboard as active');
+        dashboardLink.classList.add('active');
+      }
     }
+    
+ 
+    console.log('Elements with active class after processing:', 
+                document.querySelectorAll('.sidebar-menu ul li a.active').length);
   });
 </script>

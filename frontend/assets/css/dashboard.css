@@ -592,3 +592,162 @@
     overflow-x: auto;
   }
 }
+
+
+/* Income vs Expense Card Styling */
+.card.income-expense {
+  background: linear-gradient(to right, #fff, #f9f9ff);
+  border-left: 4px solid var(--primary-color);
+}
+
+.income-expense h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-color);
+  padding-left: 15px;
+}
+
+.income-expense-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 15px 15px;
+}
+
+.income-expense-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.income-expense-item:last-child {
+  border-bottom: none;
+  margin-top: 5px;
+}
+
+.income-expense-label {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.income-expense-label i {
+  margin-right: 8px;
+}
+
+.income-value {
+  font-weight: 600;
+  color: #1cc88a;
+}
+
+.expense-value {
+  font-weight: 600;
+  color: #e74a3b;
+}
+
+.savings-value {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 18px;
+}
+
+.savings-positive {
+  color: #1cc88a;
+}
+
+.savings-negative {
+  color: #e74a3b;
+}
+
+/* Progress bar for income vs expense ratio */
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background-color: #eaecf4;
+  border-radius: 5px;
+  margin: 15px 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(to right, #1cc88a, var(--primary-color));
+  transition: width 0.5s ease;
+}
+
+/* Income Summary Card */
+.summary-card.income-card {
+  background: linear-gradient(135deg, #ffffff, #f3f3ff);
+  border-left: 4px solid #1cc88a;
+}
+
+.income-card .card-icon {
+  background: linear-gradient(135deg, #1cc88a, #13a673);
+}
+
+.income-card h3 {
+  color: var(--text-color);
+}
+
+.income-card h2 {
+  color: #1cc88a;
+}
+
+/* Monthly Income Distribution Chart Card */
+.income-distribution-chart {
+  margin-top: 25px;
+}
+
+.income-sources {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.income-source {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.income-source-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+/* Responsive adjustments for income sections */
+@media screen and (max-width: 768px) {
+  .income-expense-details {
+    padding: 0 10px 10px;
+  }
+  
+  .income-sources {
+    justify-content: flex-start;
+    gap: 5px;
+  }
+  
+  .income-source {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .summary-card.income-card {
+    border-left: 3px solid #1cc88a;
+  }
+  
+  .card.income-expense {
+    border-left: 3px solid var(--primary-color);
+  }
+}

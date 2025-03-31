@@ -9,17 +9,14 @@ router.post('/session', (req, res) => {
     res.json({ message: "Session refreshed", user: req.session.user });
 });
 
-// Route for user registration
 router.post('/register', userController.register);
-
-// Route for user login
 router.post('/login', userController.login);
+router.post('/google-login', userController.googleLogin);
+router.post('/logout', userController.logout);
 
-// Route for user logout
-router.post('/logout',userController.logout);
 
-// Route to get the user's profile
 router.get('/profile', userController.getProfile);
+router.post('/update-profile', userController.updateProfile);
 router.post('/change-password', userController.changePassword);
 
 module.exports = router;

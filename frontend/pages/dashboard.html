@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../assets/css/style.css" />
   <link rel="stylesheet" href="../assets/css/dashboard.css" />
   <link rel="stylesheet" href="../assets/css/responsive.css" />
+  <link rel="stylesheet" href="../assets/css/profile.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" /> -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -67,24 +68,81 @@
             <h2 id="recent-expense">₹0</h2>
           </div>
         </div>
+
+        <div class="summary-card income-card card">
+          <div class="card-icon green"><i class="fas fa-wallet"></i></div>
+          <div class="card-info">
+            <h3>Total Income</h3>
+            <h2 id="summary-total-income">₹0</h2>
+          </div>
+        </div>
+
+        
       </div>
 
       <div class="card chart-card">
         <div class="card-header">
           <h3>Expense Overview</h3>
-          <div class="chart-filter" id="chart-period">
-            <!-- <select id="chart-period">
-              <option value="7">Last 7 Days</option>
-              <option value="30" selected>Last 30 Days</option>
-              <option value="90">Last 3 Months</option>
-              <option value="365">Last Year</option>
-            </select> -->
+          <div class="chart-filter">
+            <select id="chart-period">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly" selected>Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
           </div>
         </div>
         <div class="card-body">
           <canvas id="expenseChart" height="300"></canvas>
         </div>
       </div>
+
+      <div class="card income-expense">
+        <div class="card-header">
+          <h3>Income vs Expense</h3>
+          <div class="chart-filter">
+            <select id="income-expense-period">
+              <option value="month" selected>This Month</option>
+              <option value="quarter">This Quarter</option>
+              <option value="year">This Year</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="income-expense-details">
+            <div class="income-expense-item">
+              <div class="income-expense-label">
+                <i class="fas fa-arrow-circle-down" style="color: #1cc88a;"></i>
+                <span>Total Income</span>
+              </div>
+              <div class="income-value" id="total-income">₹0</div>
+              
+            </div>
+            <div class="income-expense-item">
+              <div class="income-expense-label">
+                <i class="fas fa-arrow-circle-up" style="color: #e74a3b;"></i>
+                <span>Total Expenses</span>
+              </div>
+              <div class="expense-value" id="total-expense">₹0</div>
+            </div>
+            
+            <!-- Progress bar for visual representation -->
+            <div class="progress-container">
+              <div class="progress-bar" id="income-expense-ratio" style="width: 50%;"></div>
+            </div>
+            
+            <div class="income-expense-item">
+              <div class="income-expense-label">
+                <i class="fas fa-piggy-bank" style="color: var(--primary-color);"></i>
+                <span>Net Savings</span>
+              </div>
+              <div class="savings-value" id="net-savings">₹0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
 
       <div class="card">
         <div class="card-header">

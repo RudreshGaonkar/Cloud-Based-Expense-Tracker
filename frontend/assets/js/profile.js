@@ -1,11 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadUserProfile();
   setupPasswordFeatures();
+  setupAvatarUpload();
+
+  const toggleButtons = document.querySelectorAll('.password-toggle');
+  
+  toggleButtons.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      const icon = this.querySelector('i');
+      
+      if (input && icon) {
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+        }
+      }
+    });
+  });
   
 
   document.getElementById('change-password-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     await changePassword();
+  });
+
+  document.getElementById('profile-edit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await saveProfileChanges();
   });
 });
 
@@ -16,23 +42,151 @@ function loadUserProfile() {
 async function loadUserInfo() {
   try {
     const response = await fetch('/api/users/profile', { credentials: 'include' });
-    if (!response.ok) throw new Error("Failed to fetch user profile");
+    let userData;
 
-    const data = await response.json();
-    const userNameElements = document.querySelectorAll('#user-name, #profile-name');
-    userNameElements.forEach(el => {
-      el.textContent = data.user.name;
-    });
+    if (response.ok) {
+      const data = await response.json();
+      userData = data.user;
+      
+
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const updatedUser = { ...currentUser, ...userData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } else {
+      const storedUser = localStorage.getItem('user');
+      if (!storedUser) {
+        throw new Error("User not found in local storage");
+      }
+      userData = JSON.parse(storedUser);
+    }
 
 
-    const avatarElements = document.querySelectorAll('#user-avatar, #large-user-avatar');
-    avatarElements.forEach(el => {
-      el.textContent = data.user.name.charAt(0).toUpperCase();
-    });
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+      userNameElement.textContent = userData.name;
+    }
+
+
+    const nameInput = document.getElementById('profile-name-input');
+    if (nameInput) {
+      nameInput.value = userData.name;
+    }
+    
+    const emailDisplay = document.getElementById('profile-email-display');
+    if (emailDisplay) {
+      emailDisplay.value = userData.email || '';
+    }
+
+    loadUserAvatar();
+
   } catch (error) {
     console.error("❌ Error loading user info:", error);
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+      userNameElement.textContent = 'Error Loading Profile';
+    }
+  }
+}
 
-    document.getElementById('user-name').textContent = 'Error Loading Profile';
+function loadUserAvatar() {
+  const avatarElements = document.querySelectorAll('#user-avatar, #large-user-avatar');
+  const storedAvatar = localStorage.getItem('userAvatar');
+  const nameInput = document.getElementById('profile-name-input');
+  const userName = nameInput ? nameInput.value : 'User';
+  
+  avatarElements.forEach(el => {
+    if (storedAvatar) {
+      if (el.querySelector('img')) {
+        el.querySelector('img').src = storedAvatar;
+      } else {
+        const img = document.createElement('img');
+        img.src = storedAvatar;
+        img.alt = 'Profile Avatar';
+        img.className = 'avatar-img';
+        el.innerHTML = '';
+        el.appendChild(img);
+      }
+    } else {
+      el.textContent = userName.charAt(0).toUpperCase();
+    }
+  });
+}
+
+
+function setupAvatarUpload() {
+  const avatarInput = document.getElementById('avatar-input');
+  
+  if (!avatarInput) return;
+  
+  avatarInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.match('image.*')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5000000) { 
+      alert('File is too large. Please select an image under 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+
+      localStorage.setItem('userAvatar', e.target.result);
+      
+      loadUserAvatar();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+
+async function saveProfileChanges() {
+  const nameInput = document.getElementById('profile-name-input');
+  
+  if (!nameInput) {
+    alert('Form elements not found');
+    return;
+  }
+  
+  const name = nameInput.value.trim();
+
+  if (!name) {
+    alert('Name cannot be empty');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/users/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ name })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update profile on server');
+    }
+
+
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    currentUser.name = name;
+    localStorage.setItem('user', JSON.stringify(currentUser));
+
+
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+      userNameElement.textContent = name;
+    }
+
+    alert('Profile updated successfully!');
+  } catch (error) {
+    console.error("❌ Error saving profile changes:", error);
+    alert(error.message || 'Failed to save profile changes');
   }
 }
 
@@ -54,20 +208,8 @@ async function changePassword() {
       body: JSON.stringify({ currentPassword, newPassword })
     });
 
-    // Log the raw response for debugging
-    const responseText = await response.text();
-    console.log('Raw response:', responseText);
-
-    // Parse the response manually
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error('JSON parsing error:', parseError);
-      throw new Error('Invalid server response');
-    }
-
     if (!response.ok) {
+      const data = await response.json();
       throw new Error(data.message || 'Failed to change password');
     }
 
@@ -79,60 +221,43 @@ async function changePassword() {
   }
 }
 
-//2$20P9qb1lBTZFAA
 function setupPasswordFeatures() {
   const passwordInput = document.getElementById('new-password');
   const strengthBar = document.getElementById('strengthBar');
   const strengthText = document.getElementById('password-strength-text');
 
+  if (passwordInput && strengthBar && strengthText) {
+    passwordInput.addEventListener('input', () => {
+      const password = passwordInput.value;
+      const strength = calculatePasswordStrength(password);
+      
+      strengthBar.value = strength;
+      strengthBar.setAttribute('value', strength);
 
-  passwordInput.addEventListener('input', () => {
-    const password = passwordInput.value;
-    const strength = calculatePasswordStrength(password);
-    
-    strengthBar.value = strength;
-    strengthBar.setAttribute('value', strength);
-
-    switch(strength) {
-      case 1:
-        strengthText.textContent = "Weak password";
-        strengthText.style.color = "var(--danger-color)";
-        break;
-      case 2:
-        strengthText.textContent = "Moderate password";
-        strengthText.style.color = "#ffc107";
-        break;
-      case 3:
-        strengthText.textContent = "Strong password";
-        strengthText.style.color = "#2196F3";
-        break;
-      case 4:
-        strengthText.textContent = "Very strong password";
-        strengthText.style.color = "#4CAF50";
-        break;
-      default:
-        strengthText.textContent = "";
-    }
-  });
-
-
-  document.querySelectorAll('.password-toggle').forEach(toggle => {
-    toggle.addEventListener('click', () => {
-      const targetId = toggle.getAttribute('data-target');
-      const input = document.getElementById(targetId);
-      const icon = toggle.querySelector('i');
-
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-      } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      switch(strength) {
+        case 1:
+          strengthText.textContent = "Weak password";
+          strengthText.style.color = "var(--danger-color)";
+          break;
+        case 2:
+          strengthText.textContent = "Moderate password";
+          strengthText.style.color = "#ffc107";
+          break;
+        case 3:
+          strengthText.textContent = "Strong password";
+          strengthText.style.color = "#2196F3";
+          break;
+        case 4:
+          strengthText.textContent = "Very strong password";
+          strengthText.style.color = "#4CAF50";
+          break;
+        default:
+          strengthText.textContent = "";
       }
     });
-  });
-}
+  }
 
+}
 
 function calculatePasswordStrength(password) {
   let strength = 0;

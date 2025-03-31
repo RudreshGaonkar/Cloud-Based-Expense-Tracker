@@ -450,7 +450,7 @@
     transition: background 0.3s;
   }
   
-  .sidebar-menu ul li a:hover, .sidebar-menu ul li.active a {
+  .sidebar-menu ul li a:hover {
     background: var(--primary-light);
     color: var(--primary-dark);
     border-radius: 0 30px 30px 0;
@@ -482,4 +482,28 @@
     padding-top: 90px;
     width: calc(100% - 250px);
   }
+
+  .login-divider{
+    text-align: center;
+    padding: 10px;
+  }
   
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: color 0.2s;
+  }
+  
+  .password-toggle:hover {
+    color: var(--primary-color);
+  }
+  
+  .form-group div {
+    position: relative;
+  }

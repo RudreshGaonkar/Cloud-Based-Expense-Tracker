@@ -9,6 +9,9 @@ const expenseRoutes = require('./routes/expenseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const incomeRoutes = require('./routes/incomeRoutes');
+
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -44,6 +47,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/income', incomeRoutes);
+
+app.get('/api/config/google', (req, res) => {
+  res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+});
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/assets/') || req.path.startsWith('/pages/')) {
@@ -62,6 +70,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+console.log("GOOGLE_CLIENT_ID from env:", process.env.GOOGLE_CLIENT_ID);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

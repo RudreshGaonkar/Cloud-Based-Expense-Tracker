@@ -1,44 +1,44 @@
 const { sql, poolPromise } = require('../config/db');
 
-const getExpenseTrends = async (req, res) => {
-  try {
-      const userId = req.query.userId;
-      const period = req.query.period; // Can be 'day', 'week', 'month', 'year'
+// const getExpenseTrends = async (req, res) => {
+//   try {
+//       const userId = req.query.userId;
+//       const period = req.query.period; // Can be 'day', 'week', 'month', 'year'
 
-      if (!userId || !period) {
-          return res.status(400).json({ message: "User ID and period are required" });
-      }
+//       if (!userId || !period) {
+//           return res.status(400).json({ message: "User ID and period are required" });
+//       }
 
-      let groupByFormat;
-      if (period === 'day') {
-          groupByFormat = "FORMAT(date, 'yyyy-MM-dd')"; // Daily
-      } else if (period === 'week') {
-          groupByFormat = "DATEPART(YEAR, date) + '-W' + FORMAT(DATEPART(WEEK, date), '00')"; // Weekly
-      } else if (period === 'month') {
-          groupByFormat = "FORMAT(date, 'yyyy-MM')"; // Monthly
-      } else if (period === 'year') {
-          groupByFormat = "FORMAT(date, 'yyyy')"; // Yearly
-      } else {
-          return res.status(400).json({ message: "Invalid period format" });
-      }
+//       let groupByFormat;
+//       if (period === 'day') {
+//           groupByFormat = "FORMAT(date, 'yyyy-MM-dd')"; // Daily
+//       } else if (period === 'week') {
+//           groupByFormat = "DATEPART(YEAR, date) + '-W' + FORMAT(DATEPART(WEEK, date), '00')"; // Weekly
+//       } else if (period === 'month') {
+//           groupByFormat = "FORMAT(date, 'yyyy-MM')"; // Monthly
+//       } else if (period === 'year') {
+//           groupByFormat = "FORMAT(date, 'yyyy')"; // Yearly
+//       } else {
+//           return res.status(400).json({ message: "Invalid period format" });
+//       }
 
-      const pool = await poolPromise;
-      const result = await pool.request()
-          .input('userId', sql.Int, userId)
-          .query(`
-              SELECT ${groupByFormat} AS period, SUM(amount) AS total
-              FROM Expenses
-              WHERE userId = @userId
-              GROUP BY ${groupByFormat}
-              ORDER BY period;
-          `);
+//       const pool = await poolPromise;
+//       const result = await pool.request()
+//           .input('userId', sql.Int, userId)
+//           .query(`
+//               SELECT ${groupByFormat} AS period, SUM(amount) AS total
+//               FROM Expenses
+//               WHERE userId = @userId
+//               GROUP BY ${groupByFormat}
+//               ORDER BY period;
+//           `);
 
-      res.json(result.recordset || []);
-  } catch (error) {
-      console.error("❌ Error fetching expense trends:", error);
-      res.status(500).json({ message: "Error retrieving expense trends", error: error.message });
-  }
-};
+//       res.json(result.recordset || []);
+//   } catch (error) {
+//       console.error("❌ Error fetching expense trends:", error);
+//       res.status(500).json({ message: "Error retrieving expense trends", error: error.message });
+//   }
+// };
 
 const getFilteredExpenses = async (req, res) => {
   try {
@@ -83,42 +83,159 @@ const getFilteredExpenses = async (req, res) => {
 };
 
 
-const getExpenseSummary = async (req, res) => {
-  try {
-      const userId = req.query.userId; 
-      if (!userId) {
-          return res.status(400).json({ message: "User ID is required" });
-      }
+// const getExpenseSummary = async (req, res) => {
+//   try {
+//       const userId = req.query.userId; 
+//       if (!userId) {
+//           return res.status(400).json({ message: "User ID is required" });
+//       }
 
-      console.log(`✅ Fetching expense summary for userId: ${userId}`);
+//       console.log(`✅ Fetching expense summary for userId: ${userId}`);
 
-      const pool = await poolPromise;
-      const result = await pool.request()
-          .input('userId', sql.Int, userId)
-          .query(`
-              SELECT 
-                  COALESCE(SUM(amount), 0) AS totalExpenses, 
-                  COUNT(id) AS transactionCount,
-                  COALESCE(AVG(amount), 0) AS avgDaily,
-                  (SELECT TOP 1 c.name 
-                   FROM Expenses e 
-                   INNER JOIN Categories c ON e.categoryId = c.id
-                   WHERE e.userId = @userId 
-                   GROUP BY c.name 
-                   ORDER BY SUM(e.amount) DESC) AS topCategory
-              FROM Expenses 
-              WHERE userId = @userId
-          `);
+//       const pool = await poolPromise;
+//       const result = await pool.request()
+//           .input('userId', sql.Int, userId)
+//           .query(`
+//               SELECT 
+//                   COALESCE(SUM(amount), 0) AS totalExpenses, 
+//                   COUNT(id) AS transactionCount,
+//                   COALESCE(AVG(amount), 0) AS avgDaily,
+//                   (SELECT TOP 1 c.name 
+//                    FROM Expenses e 
+//                    INNER JOIN Categories c ON e.categoryId = c.id
+//                    WHERE e.userId = @userId 
+//                    GROUP BY c.name 
+//                    ORDER BY SUM(e.amount) DESC) AS topCategory
+//               FROM Expenses 
+//               WHERE userId = @userId
+//           `);
 
-      console.log("📊 Expense Summary Data:", result.recordset[0]);
+//       console.log("📊 Expense Summary Data:", result.recordset[0]);
 
-      res.json(result.recordset[0] || {}); 
-  } catch (error) {
-      console.error("❌ Error fetching expense summary:", error);
-      res.status(500).json({ message: "Error retrieving expense summary", error: error.message });
-  }
-};
+//       res.json(result.recordset[0] || {}); 
+//   } catch (error) {
+//       console.error("❌ Error fetching expense summary:", error);
+//       res.status(500).json({ message: "Error retrieving expense summary", error: error.message });
+//   }
+// };
  
+const getExpenseSummary = async (req, res) => {
+    try {
+        const userId = req.query.userId; 
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+  
+        console.log(`✅ Fetching expense & income summary for userId: ${userId}`);
+  
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('userId', sql.Int, userId)
+            .query(`
+                WITH ExpenseData AS (
+                    SELECT 
+                        COALESCE(SUM(amount), 0) AS totalExpenses, 
+                        COUNT(id) AS transactionCount,
+                        -- Calculate monthly average instead of daily average
+                        COALESCE(SUM(amount) / 
+                            NULLIF(COUNT(DISTINCT FORMAT(date, 'yyyy-MM')), 0), 0) AS avgMonthly,
+                        (SELECT TOP 1 c.name 
+                         FROM Expenses e 
+                         INNER JOIN Categories c ON e.categoryId = c.id
+                         WHERE e.userId = @userId 
+                         GROUP BY c.name 
+                         ORDER BY SUM(e.amount) DESC) AS topCategory
+                    FROM Expenses 
+                    WHERE userId = @userId
+                ),
+                IncomeData AS (
+                    SELECT COALESCE(SUM(amount), 0) AS totalIncome 
+                    FROM Income 
+                    WHERE userId = @userId
+                )
+                SELECT 
+                    e.totalExpenses,
+                    i.totalIncome,
+                    (i.totalIncome - e.totalExpenses) AS remainingIncome,
+                    e.transactionCount,
+                    e.avgMonthly,
+                    e.topCategory
+                FROM ExpenseData e, IncomeData i;
+            `);
+  
+        console.log("📊 Expense & Income Summary Data:", result.recordset[0]);
+  
+        res.json(result.recordset[0] || {}); 
+    } catch (error) {
+        console.error("❌ Error fetching expense & income summary:", error);
+        res.status(500).json({ message: "Error retrieving summary", error: error.message });
+    }
+  };
+
+const getExpenseTrends = async (req, res) => {
+    try {
+        const userId = req.query.userId;
+        const period = req.query.period; // Can be 'day', 'week', 'month', 'year'
+        
+        // Get current year
+        const currentYear = new Date().getFullYear();
+  
+        if (!userId || !period) {
+            return res.status(400).json({ message: "User ID and period are required" });
+        }
+  
+        let groupByFormat;
+        let dateFilter = '';
+        
+        if (period === 'day') {
+            groupByFormat = "FORMAT(date, 'yyyy-MM-dd')"; // Daily
+            dateFilter = `AND YEAR(date) = ${currentYear}`;
+        } else if (period === 'week') {
+            groupByFormat = "CONCAT(DATEPART(YEAR, date), '-W', FORMAT(DATEPART(WEEK, date), '00'))"; // Weekly
+            dateFilter = `AND YEAR(date) = ${currentYear}`;
+        } else if (period === 'month') {
+            groupByFormat = "FORMAT(date, 'yyyy-MM')"; // Monthly
+            dateFilter = `AND YEAR(date) = ${currentYear}`;
+        } else if (period === 'year') {
+            groupByFormat = "FORMAT(date, 'yyyy')"; // Yearly
+            // No year filter needed for yearly view
+        } else {
+            return res.status(400).json({ message: "Invalid period format" });
+        }
+  
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('userId', sql.Int, userId)
+            .query(`
+                WITH ExpenseData AS (
+                    SELECT ${groupByFormat} AS period, SUM(amount) AS totalExpense
+                    FROM Expenses
+                    WHERE userId = @userId ${dateFilter}
+                    GROUP BY ${groupByFormat}
+                ),
+                IncomeData AS (
+                    SELECT ${groupByFormat} AS period, SUM(amount) AS totalIncome
+                    FROM Income
+                    WHERE userId = @userId ${dateFilter}
+                    GROUP BY ${groupByFormat}
+                )
+                SELECT 
+                    COALESCE(e.period, i.period) AS period, 
+                    COALESCE(totalExpense, 0) AS totalExpense, 
+                    COALESCE(totalIncome, 0) AS totalIncome
+                FROM ExpenseData e
+                FULL OUTER JOIN IncomeData i 
+                ON e.period = i.period
+                ORDER BY period;
+            `);
+  
+        res.json(result.recordset || []);
+    } catch (error) {
+        console.error("❌ Error fetching expense & income trends:", error);
+        res.status(500).json({ message: "Error retrieving trends", error: error.message });
+    }
+  };
+
   const getCategoryReport = async (req, res) => {
     try {
       const userId = req.query.userId; 
