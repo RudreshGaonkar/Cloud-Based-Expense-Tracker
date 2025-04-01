@@ -1,39 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // let passwordStates = {};
   setupPasswordFeatures();
 
   setupGoogleSignIn();
 
-  const toggleButtons = document.querySelectorAll('.password-toggle');
+  //     data-client_id="859696378648-clao8v8ktq21vmovmt1voauvp2llokfv.apps.googleusercontent.com"
 
-  toggleButtons.forEach(toggle => {
+  const passwordToggles = document.querySelectorAll(".password-toggle");
 
-    toggle.addEventListener('click', function() {
-      const targetId = this.getAttribute('data-target');
-      const input = document.getElementById(targetId);
+  passwordToggles.forEach((toggle) => {
+    toggle.addEventListener("click", () => {
+      const targetId = toggle.getAttribute("data-target");
+      const passwordInput = document.querySelector(`[id="${targetId}"]`);
 
-      const icon = this.querySelector('i');
-
-      if (input && icon) {
-
-        if (input.type === 'password') {
-
-          input.type = 'text';
-
-          icon.classList.replace('fa-eye-slash', 'fa-eye');
-
-        } else {
-
-          input.type = 'password';
-
-          icon.classList.replace('fa-eye', 'fa-eye-slash');
-
-        }
-
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggle.innerHTML = '<i class="fas fa-eye"></i>'; 
+      } else {
+        passwordInput.type = "password";
+        toggle.innerHTML = '<i class="fas fa-eye-slash"></i>'; 
       }
-
     });
-
   });
+  
 
   // ---------- Login Form Handling ----------
   const loginForm = document.getElementById('loginForm');
@@ -42,7 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      // const submitBtn = loginForm.querySelector('button[type="submit"]');
+      const submitBtn = document.getElementById('loginSubmitBtn');
+
+      console.log(submitBtn);
       const originalBtnText = submitBtn.textContent;
       submitBtn.disabled = true;
       submitBtn.textContent = 'Logging in...';

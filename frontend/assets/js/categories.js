@@ -84,7 +84,7 @@ function loadUserAvatar() {
         el.appendChild(img);
       }
     } else {
-      el.textContent = userName.charAt(0).toUpperCase();
+      // el.textContent = userName.charAt(0).toUpperCase();
     }
   });
 }

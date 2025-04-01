@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(result => {
           alert(result.message);
-          // Clear input fields
           currentPassword.value = '';
           newPassword.value = '';
           confirmPassword.value = '';
@@ -103,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
           el.appendChild(img);
         }
       } else {
-        el.textContent = userName.charAt(0).toUpperCase();
+        // el.textContent = userName.charAt(0).toUpperCase();
       }
     });
   }

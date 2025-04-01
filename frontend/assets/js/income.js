@@ -171,10 +171,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const incomeForm = document.getElementById("incomeForm");
   const incomeDateInput = document.getElementById("incomeDate");
 
-  // Set the max date attribute to today's date
-  const today = new Date();
-  const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-  incomeDateInput.setAttribute("max", formattedDate);
+
+  function setMaxDateToToday() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    incomeDateInput.setAttribute("max", formattedDate);
+  }
+
+  setMaxDateToToday();
+
+  incomeForm.addEventListener("reset", setMaxDateToToday);
 
   if (incomeForm) {
       incomeForm.addEventListener("submit", async (e) => {
@@ -189,13 +198,14 @@ document.addEventListener("DOMContentLoaded", function () {
               return;
           }
 
-          // Validate that the date is not in the future
-          const selectedDate = new Date(date);
-          const currentDate = new Date();
-          currentDate.setHours(0, 0, 0, 0); // Set to beginning of day for accurate comparison
-          
-          if (selectedDate > currentDate) {
-              alert("Cannot add income with a future date.");
+          const inputDate = new Date(date);
+          const today = new Date();
+        
+          const inputDateOnly = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate());
+          const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        
+          if (inputDateOnly > todayOnly) {
+              alert('Future dates are not allowed for expenses.');
               return;
           }
 
@@ -214,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
               alert(result.message || "Income added successfully");
               incomeForm.reset();
-              fetchIncomeRecords(1); // Refresh with first page
+              fetchIncomeRecords(1); 
           } catch (error) {
               console.error("Error adding income:", error);
               alert(error.message);
@@ -222,7 +232,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Initialize pagination controls
   document.getElementById("prevPage").addEventListener("click", () => {
       const currentPage = parseInt(document.getElementById("currentPage").textContent);
       if (currentPage > 1) {
@@ -341,7 +350,7 @@ function loadUserAvatar() {
         el.appendChild(img);
       }
     } else {
-      el.textContent = userName.charAt(0).toUpperCase();
+      // el.textContent = userName.charAt(0).toUpperCase();
     }
   });
 }

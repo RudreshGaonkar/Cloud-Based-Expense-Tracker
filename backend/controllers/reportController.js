@@ -1,45 +1,5 @@
 const { sql, poolPromise } = require('../config/db');
 
-// const getExpenseTrends = async (req, res) => {
-//   try {
-//       const userId = req.query.userId;
-//       const period = req.query.period; // Can be 'day', 'week', 'month', 'year'
-
-//       if (!userId || !period) {
-//           return res.status(400).json({ message: "User ID and period are required" });
-//       }
-
-//       let groupByFormat;
-//       if (period === 'day') {
-//           groupByFormat = "FORMAT(date, 'yyyy-MM-dd')"; // Daily
-//       } else if (period === 'week') {
-//           groupByFormat = "DATEPART(YEAR, date) + '-W' + FORMAT(DATEPART(WEEK, date), '00')"; // Weekly
-//       } else if (period === 'month') {
-//           groupByFormat = "FORMAT(date, 'yyyy-MM')"; // Monthly
-//       } else if (period === 'year') {
-//           groupByFormat = "FORMAT(date, 'yyyy')"; // Yearly
-//       } else {
-//           return res.status(400).json({ message: "Invalid period format" });
-//       }
-
-//       const pool = await poolPromise;
-//       const result = await pool.request()
-//           .input('userId', sql.Int, userId)
-//           .query(`
-//               SELECT ${groupByFormat} AS period, SUM(amount) AS total
-//               FROM Expenses
-//               WHERE userId = @userId
-//               GROUP BY ${groupByFormat}
-//               ORDER BY period;
-//           `);
-
-//       res.json(result.recordset || []);
-//   } catch (error) {
-//       console.error("❌ Error fetching expense trends:", error);
-//       res.status(500).json({ message: "Error retrieving expense trends", error: error.message });
-//   }
-// };
-
 const getFilteredExpenses = async (req, res) => {
   try {
       const userId = req.query.userId;
@@ -198,7 +158,6 @@ const getExpenseTrends = async (req, res) => {
             dateFilter = `AND YEAR(date) = ${currentYear}`;
         } else if (period === 'year') {
             groupByFormat = "FORMAT(date, 'yyyy')"; // Yearly
-            // No year filter needed for yearly view
         } else {
             return res.status(400).json({ message: "Invalid period format" });
         }
@@ -283,12 +242,42 @@ const getExpenseTrends = async (req, res) => {
       res.status(500).json({ message: "Error retrieving monthly trends", error: error.message });
     }
   };
+
+  const getMonthlyIncome = async (req, res) => {
+    try {
+        const userId = req.query.userId;
+        const month = req.query.month;
+        
+        if (!userId || !month) {
+            return res.status(400).json({ message: "User ID and month are required" });
+        }
+        
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('userId', sql.Int, userId)
+            .input('month', sql.NVarChar, month)
+            .query(`
+                SELECT COALESCE(SUM(amount), 0) AS totalIncome
+                FROM Income
+                WHERE userId = @userId 
+                AND FORMAT(date, 'yyyy-MM') = @month
+            `);
+        
+        console.log("💰 Monthly Income Data:", result.recordset[0]);
+        
+        res.json(result.recordset[0] || { totalIncome: 0 });
+    } catch (error) {
+        console.error("❌ Error fetching monthly income:", error);
+        res.status(500).json({ message: "Error retrieving monthly income", error: error.message });
+    }
+};
   
   module.exports = {
     getExpenseSummary,
     getCategoryReport,
     getMonthlyTrends,
     getExpenseTrends,
-    getFilteredExpenses
+    getFilteredExpenses,
+    getMonthlyIncome
   };
   

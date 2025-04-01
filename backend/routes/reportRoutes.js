@@ -5,7 +5,8 @@ const {
     getCategoryReport, 
     getMonthlyTrends, 
     getExpenseTrends,  
-    getFilteredExpenses 
+    getFilteredExpenses ,
+    getMonthlyIncome
 } = require('../controllers/reportController');
 
 
@@ -14,5 +15,6 @@ router.get('/categories', getCategoryReport);
 router.get('/monthly', getMonthlyTrends);
 router.get('/trends', getExpenseTrends); 
 router.get('/filtered', getFilteredExpenses); 
+router.get('/monthly-income', getMonthlyIncome);
 
 module.exports = router;

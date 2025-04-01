@@ -1,23 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+  let passwordStates = {};
   loadUserProfile();
   setupPasswordFeatures();
   setupAvatarUpload();
 
   const toggleButtons = document.querySelectorAll('.password-toggle');
-  
+
   toggleButtons.forEach(toggle => {
+    const targetId = toggle.getAttribute('data-target');
+    passwordStates[targetId] = false; 
+    
     toggle.addEventListener('click', function() {
       const targetId = this.getAttribute('data-target');
       const input = document.getElementById(targetId);
       const icon = this.querySelector('i');
       
+
+      passwordStates[targetId] = !passwordStates[targetId];
+      const isVisible = passwordStates[targetId];
+      
+      console.log(`Toggle clicked, making password ${isVisible ? 'visible' : 'hidden'}`);
+      
       if (input && icon) {
-        if (input.type === 'password') {
-          input.type = 'text';
-          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        if (isVisible) {
+          input.setAttribute('type', 'text');
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
         } else {
-          input.type = 'password';
-          icon.classList.replace('fa-eye', 'fa-eye-slash');
+
+          input.setAttribute('type', 'password');
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
         }
       }
     });
@@ -107,7 +120,7 @@ function loadUserAvatar() {
         el.appendChild(img);
       }
     } else {
-      el.textContent = userName.charAt(0).toUpperCase();
+      // el.textContent = userName.charAt(0).toUpperCase();
     }
   });
 }

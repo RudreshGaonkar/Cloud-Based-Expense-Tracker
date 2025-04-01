@@ -40,24 +40,33 @@
             <div class="form-group">
               <label for="password"><i class="fas fa-lock"></i> Password</label>
               <input type="password" id="password" name="password" placeholder="Enter your password" required />
-              <span class="forgot-password"><a href="#" id="forgotPasswordLink">Forgot password?</a></span>
+              <!-- <span class="forgot-password"><a href="#" id="forgotPasswordLink">Forgot password?</a></span> -->
             </div>
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            <!-- <div class="form-group">
+              <label for="reg-password"><i class="fas fa-lock"></i> Password</label>
+              <div style="position: relative;">
+                <input type="password" id="password" name="password" placeholder="Create a strong password" data-target="login-password" required />
+                <button type="button" class="password-toggle" data-target="reg-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                  <i class="fas fa-eye-slash"></i>
+                </button>
+              </div> -->
+              <!-- <progress id="strengthBar" value="0" max="4"></progress>
+              <small class="password-hint">Password must have 8+ characters with at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)</small> -->
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; justify-content: center;">
+              <button type="submit" class="btn btn-primary btn-block" style="width : 250px">Sign In</button>
             </div>
           </form>
           <div class="login-divider">
             <span>Or</span>
           </div>
           <!-- Google Sign-In Button -->
-          <div class="form-group">
-            <button id="googleLoginBtn" class="btn btn-google btn-block g_id_signin">
-              
+          <div class="form-group" style="display: flex; align-items: center; justify-content: center;">
+            <button id="googleLoginBtn" class="btn btn-google btn-block g_id_signin" style="width : 210px">
               Sign in with Google
             </button>
-          </div>
-          <!-- End Google Sign-In Button -->
-          <div class="login-divider">
+
+          <div class="login-divider" style="display: block;">
             <span>New to CloudBased?</span>
           </div>
           <div class="form-group">
@@ -87,7 +96,7 @@
         <div class="form-group">
           <label for="reg-password"><i class="fas fa-lock"></i> Password</label>
           <div style="position: relative;">
-            <input type="password" id="reg-password" name="password" placeholder="Create a strong password" required />
+            <input type="password" id="reg-password" name="password" placeholder="Create a strong password" data-target="sigin-password" required />
             <button type="button" class="password-toggle" data-target="reg-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
               <i class="fas fa-eye-slash"></i>
             </button>
@@ -99,13 +108,13 @@
         <div class="form-group">
           <label for="reg-confirm-password"><i class="fas fa-check-circle"></i> Confirm Password</label>
           <div style="position: relative;">
-            <input type="password" id="reg-confirm-password" name="confirmPassword" placeholder="Confirm your password" required />
+            <input type="password" id="reg-confirm-password" name="confirmPassword" placeholder="Confirm your password" data-target="confirm-signin-password" required />
             <button type="button" class="password-toggle" data-target="reg-confirm-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
               <i class="fas fa-eye-slash"></i>
             </button>
           </div>
         <div class="form-group">
-          <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+          <button id="loginSubmitBtn" type="submit" class="btn btn-primary btn-block">Create Account</button>
         </div>
       </form>
     </div>
@@ -113,7 +122,7 @@
 
   <!-- Google Sign-In Container -->
   <div id="g_id_onload"
-     data-client_id="8xb.apps.googleusercontent.com"
+     data-client_id="859696378648-clao8v8ktq21vmovmt1voauvp2llokfv.apps.googleusercontent.com"
      data-callback="handleGoogleSignIn"
      data-auto_prompt="false">
   </div>
