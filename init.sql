@@ -20,16 +20,6 @@ CREATE TABLE Expenses (
     description NVARCHAR(150)
 );
 
-CREATE TABLE Expenses (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    userId INT FOREIGN KEY REFERENCES Users(id),
-    categoryId INT FOREIGN KEY REFERENCES Categories(id),
-    title NVARCHAR(150),
-    amount DECIMAL(10, 2),
-    date DATE,
-    description NVARCHAR(150)
-);
-
 CREATE TABLE Income (
     id INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,

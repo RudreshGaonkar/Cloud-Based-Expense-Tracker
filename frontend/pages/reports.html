@@ -148,6 +148,43 @@
       </div>
 
 
+<div class="card">
+  <div class="card-header">
+    <h3>Income Records</h3>
+  </div>
+
+  <div class="filter-container">
+    <label for="filter-income-month">Select Month (YYYY-MM):</label>
+    <input type="text" id="filter-income-month" placeholder="e.g. 2025-04">
+
+    <button id="apply-income-filter" class="btn btn-primary">Apply Filter</button>
+    <button id="clear-income-filter" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filter</button>
+  </div>
+
+  <div class="card-body">
+    <h3>Monthly Income Records</h3>
+    <p>View your income transactions for the selected month</p>
+    <div class="table-responsive">
+      <table class="data-table" id="income-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Source</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Income data will be dynamically loaded here -->
+          <tr>
+            <td colspan="3" class="text-center">Select a month to view income records</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
         <!-- <h3>Total Income This Month</h3>
         <p id="totalIncomeReport">₹0.00</p> -->
         <!-- <div class="card">

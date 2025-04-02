@@ -190,6 +190,10 @@ function updatePagination(currentPage, totalPages) {
 document.getElementById('expenseForm')?.addEventListener('submit', async (event) => {
   event.preventDefault();
 
+  const saveButton = event.submitter;
+  const originalText = saveButton.innerHTML;
+  saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  saveButton.disabled = true;
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const userId = storedUser ? storedUser.id : null;
 
@@ -200,17 +204,21 @@ document.getElementById('expenseForm')?.addEventListener('submit', async (event)
   const notes = document.getElementById('expense-notes').value.trim();
 
   if (!userId || !title || !amount || !categoryId || !date) {
+      saveButton.innerHTML = originalText;
       alert('Please fill in all required fields.');
+      saveButton.disabled = false;
       return;
   }
   const inputDate = new Date(date);
   const today = new Date();
 
-  // Normalize both dates to YYYY-MM-DD (removing time part)
+
   const inputDateOnly = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate());
   const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
   if (inputDateOnly > todayOnly) {
+      saveButton.innerHTML = originalText;
+      saveButton.disabled = false;
       alert('Future dates are not allowed for expenses.');
       return;
   }
@@ -237,6 +245,10 @@ document.getElementById('expenseForm')?.addEventListener('submit', async (event)
       }
   } catch (error) {
       console.error("Error adding expense:", error);
+      alert("Error adding expense: " + error.message);
+  }finally {
+    saveButton.innerHTML = originalText;
+    saveButton.disabled = false;
   }
 });
 
@@ -286,6 +298,11 @@ function closeEditModal() {
 document.getElementById('editExpenseForm').addEventListener('submit', async (event) => {
   event.preventDefault();
 
+  const updateButton = event.submitter;
+  const originalText = updateButton.innerHTML;
+  updateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+  updateButton.disabled = true;
+
   const expenseId = document.getElementById('edit-expense-id').value;
   const title = document.getElementById('edit-expense-title').value.trim();
   const amount = document.getElementById('edit-expense-amount').value;
@@ -294,6 +311,8 @@ document.getElementById('editExpenseForm').addEventListener('submit', async (eve
   const notes = document.getElementById('edit-expense-notes').value.trim();
 
   if (!expenseId || !title || !amount || !categoryId || !date) {
+    updateButton.innerHTML = originalText;
+    updateButton.disabled = false;
     alert('Please fill in all required fields.');
     return;
   }

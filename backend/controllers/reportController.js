@@ -195,21 +195,54 @@ const getExpenseTrends = async (req, res) => {
     }
   };
 
-  const getCategoryReport = async (req, res) => {
+//   const getCategoryReport = async (req, res) => {
+//     try {
+//       const userId = req.query.userId; 
+//       if (!userId) {
+//         return res.status(400).json({ message: "User ID is required" });
+//       }
+  
+//       const pool = await poolPromise;
+//       const result = await pool.request()
+//         .input('userId', sql.Int, userId)
+//         .query(`
+//             SELECT c.name AS category, SUM(e.amount) AS totalAmount
+//             FROM Expenses e
+//             INNER JOIN Categories c ON e.categoryId = c.id
+//             WHERE e.userId = @userId
+//             GROUP BY c.name
+//         `);
+  
+//       res.json(result.recordset || []);
+//     } catch (error) {
+//       console.error("Error fetching category report:", error);
+//       res.status(500).json({ message: "Error retrieving category report", error: error.message });
+//     }
+//   };
+  
+const getCategoryReport = async (req, res) => {
     try {
-      const userId = req.query.userId; 
+      const userId = req.query.userId;
+      const month = req.query.month || null;
+  
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
+      }
+  
+      let whereClause = "e.userId = @userId";
+      if (month) {
+        whereClause += " AND FORMAT(e.date, 'yyyy-MM') = @month";
       }
   
       const pool = await poolPromise;
       const result = await pool.request()
         .input('userId', sql.Int, userId)
+        .input('month', sql.NVarChar, month || null)
         .query(`
             SELECT c.name AS category, SUM(e.amount) AS totalAmount
             FROM Expenses e
             INNER JOIN Categories c ON e.categoryId = c.id
-            WHERE e.userId = @userId
+            WHERE ${whereClause}
             GROUP BY c.name
         `);
   
@@ -271,6 +304,41 @@ const getExpenseTrends = async (req, res) => {
         res.status(500).json({ message: "Error retrieving monthly income", error: error.message });
     }
 };
+
+const getFilteredIncome = async (req, res) => {
+    try {
+        const userId = req.query.userId;
+        const month = req.query.month || null;
+        
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+  
+        let whereClause = "WHERE userId = @userId";
+        if (month) {
+            whereClause += " AND FORMAT(date, 'yyyy-MM') = @month";
+        }
+  
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('userId', sql.Int, userId)
+            .input('month', sql.NVarChar, month || null)
+            .query(`
+                SELECT description, amount, date
+                FROM Income 
+                ${whereClause}
+                ORDER BY Date DESC;
+            `);
+  
+        console.log("💰 Filtered Income SQL Result:", result.recordset);
+  
+        res.json(result.recordset || []);
+    } catch (error) {
+        console.error("❌ Error fetching filtered income:", error);
+        res.status(500).json({ message: "Error retrieving income records", error: error.message });
+    }
+  };
+  
   
   module.exports = {
     getExpenseSummary,
@@ -278,6 +346,7 @@ const getExpenseTrends = async (req, res) => {
     getMonthlyTrends,
     getExpenseTrends,
     getFilteredExpenses,
-    getMonthlyIncome
+    getMonthlyIncome,
+    getFilteredIncome
   };
   

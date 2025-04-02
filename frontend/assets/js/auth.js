@@ -1,10 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // let passwordStates = {};
   setupPasswordFeatures();
-
   setupGoogleSignIn();
-
-  //     data-client_id="859696378648-clao8v8ktq21vmovmt1voauvp2llokfv.apps.googleusercontent.com"
 
   const passwordToggles = document.querySelectorAll(".password-toggle");
 
@@ -23,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
-
   // ---------- Login Form Handling ----------
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
@@ -31,13 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      // const submitBtn = loginForm.querySelector('button[type="submit"]');
-      const submitBtn = document.getElementById('loginSubmitBtn');
+      const submitBtn = document.getElementById("login");
 
-      console.log(submitBtn);
-      const originalBtnText = submitBtn.textContent;
+      // Show loading state
+      const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Logging in...';
+      submitBtn.innerHTML = '<div class="loader"></div> Signing in...';
+      
       try {
         const res = await fetch('/api/users/login', {
           method: 'POST',
@@ -53,40 +48,37 @@ document.addEventListener('DOMContentLoaded', () => {
             id: data.user.id,
             name: data.user.name,
             email: data.user.email
-
           }));
           console.log("✅ User stored in localStorage:", localStorage.getItem('user'));
           window.location.href = 'pages/dashboard.html';
         } else {
-          console.log(data.message || 'Login failed. Please check your credentials.');
+          showToast(data.message || 'Login failed. Please check your credentials.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
 
       } catch (error) {
         console.error('Login error:', error);
-        console.log('An error occurred during login. Please try again.');
-      } finally {
+        showToast('An error occurred during login. Please try again.', 'error');
         submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-
+        submitBtn.innerHTML = originalBtnText;
       }
-
     });
-
   }
 
-
   // ---------- Google Sign-In Setup ----------
-
   function setupGoogleSignIn() {
     const googleLoginBtn = document.getElementById('googleLoginBtn');
     if (googleLoginBtn) {
       googleLoginBtn.addEventListener('click', () => {
         const googleSignInButton = document.querySelector('.g_id_signin');
         if (googleSignInButton) {
+          googleLoginBtn.disabled = true;
+          googleLoginBtn.innerHTML = '<div class="loader"></div> Signing in...';
           googleSignInButton.click();
         } else {
           console.error('Google Sign-In button not found');
-          console.log('Google Sign-In is currently unavailable. Please try again later.');
+          showToast('Google Sign-In is currently unavailable. Please try again later.', 'error');
         }
       });
     }
@@ -96,24 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = response.credential;
     console.log("Google Sign-In Response:", response);
     console.log("Extracted Token:", token); 
-    try {
-      const googleLoginBtn = document.getElementById('googleLoginBtn');
-      if (googleLoginBtn) {
-        const originalBtnText = googleLoginBtn.innerHTML;
-        googleLoginBtn.disabled = true;
-        googleLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-      }
+    
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    let originalBtnText = '';
+    
+    if (googleLoginBtn) {
+      originalBtnText = 'Sign in with Google';
+      googleLoginBtn.disabled = true;
+      googleLoginBtn.innerHTML = '<div class="loader"></div> Signing in...';
+    }
 
+    try {
       const res = await fetch('/api/users/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ token }),
-
       });
 
       const data = await res.json();
       console.log("API Response Data:", data);
+      
       if (res.ok) {
         localStorage.setItem('user', JSON.stringify({
           id: data.user.id,
@@ -123,8 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("✅ Google user stored in localStorage:", localStorage.getItem('user'));
         window.location.href = 'pages/dashboard.html';
       } else {
-        console.log(data.message || 'Google login failed. Please try again.');
-
+        showToast(data.message || 'Google login failed. Please try again.', 'error');
         if (googleLoginBtn) {
           googleLoginBtn.disabled = false;
           googleLoginBtn.innerHTML = originalBtnText;
@@ -132,52 +126,31 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
     } catch (error) {
-
       console.error('Google login error:', error);
-
-      console.log('An error occurred during Google login. Please try again.');
-
-      const googleLoginBtn = document.getElementById('googleLoginBtn');
-
+      showToast('An error occurred during Google login. Please try again.', 'error');
+      
       if (googleLoginBtn) {
-
         googleLoginBtn.disabled = false;
-
-        // googleLoginBtn.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="google-icon"> Sign in with Google';
+        googleLoginBtn.innerHTML = originalBtnText;
       }
     }
-
   };
 
-
-
-  // ---------- Registration Modal Handling ----------
+  // ---------- Registration Modal -----------
   const registerBtn = document.getElementById('registerBtn');
   const registerModal = document.getElementById('registerModal');
   const closeModalBtn = document.querySelector('#registerModal .close-modal');
 
   if (registerBtn && registerModal) {
-
     registerBtn.addEventListener('click', () => {
-
       registerModal.style.display = 'block';
-
       setTimeout(() => {
-
         registerModal.classList.add('show');
-
       }, 10);
-
     });
-
   }
 
-
-
-
-
   if (closeModalBtn && registerModal) {
-
     closeModalBtn.addEventListener('click', () => {
       closeModal();
     });
@@ -189,23 +162,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
   function closeModal() {
     registerModal.classList.remove('show');
-
     setTimeout(() => {
       registerModal.style.display = 'none';
-
       if (registerForm) registerForm.reset();
     }, 300);
   }
 
-  // ---------- Registration Form Handling ----------
-
+  // ---------- Registration Form  -----------
   const registerForm = document.getElementById('registerForm');
 
   if (registerForm) {
-
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -214,22 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('reg-password').value;
       const confirmPassword = document.getElementById('reg-confirm-password').value;
 
-
-
-
-
       if (!validateRegistrationForm(name, email, password, confirmPassword)) {
         return;
       }
 
-      
-
-
-
       const submitBtn = registerForm.querySelector('button[type="submit"]');
-      const originalBtnText = submitBtn.textContent;
+      const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Creating account...';
+      submitBtn.innerHTML = '<div class="loader"></div> Creating account...';
 
       try {
         const res = await fetch('/api/users/register', {
@@ -242,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (res.ok) {
-
           localStorage.setItem('user', JSON.stringify({
             id: data.user.id,
             name: data.user.name,
@@ -250,135 +209,132 @@ document.addEventListener('DOMContentLoaded', () => {
           }));
           window.location.href = 'pages/dashboard.html';
         } else {
-          console.log(data.message || 'Registration failed.');
+          showToast(data.message || 'Registration failed.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
 
       } catch (error) {
         console.error('Registration error:', error);
-        console.log('An error occurred during registration. Please try again.');
-      } finally {
+        showToast('An error occurred during registration. Please try again.', 'error');
         submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-
+        submitBtn.innerHTML = originalBtnText;
       }
     });
-
   }
 
-  
-
-
-
   function validateRegistrationForm(name, email, password, confirmPassword) {
-
-
-
     if (!name || name.trim().length < 2) {
-      console.log('Please enter a valid name (at least 2 characters).');
+      showToast('Please enter a valid name (at least 2 characters).', 'error');
       return false;
     }
-
-    
-
-
 
     if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(name)) {
-      console.log('Name should not contain numbers or special characters.');
+      showToast('Name should not contain numbers or special characters.', 'error');
       return false;
     }
-
-    
-
-
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      console.log('Please enter a valid email address.');
+      showToast('Please enter a valid email address.', 'error');
       return false;
-
     }
-
-    
-
-
 
     const disposableDomains = ['example.com', 'test.com'];
     const emailDomain = email.split('@')[1];
     if (disposableDomains.includes(emailDomain)) {
-      console.log('Please use a non-disposable email address.');
+      showToast('Please use a non-disposable email address.', 'error');
       return false;
     }
-
-    
-
- 
 
     if (password.length < 8) {
-      console.log('Password must be at least 8 characters long.');
+      showToast('Password must be at least 8 characters long.', 'error');
       return false;
     }
-
-    
-
-
 
     if (!/[A-Z]/.test(password)) {
-      console.log('Password must contain at least one uppercase letter.');
+      showToast('Password must contain at least one uppercase letter.', 'error');
       return false;
     }
-
-    
-
-
 
     if (!/[a-z]/.test(password)) {
-      console.log('Password must contain at least one lowercase letter.');
+      showToast('Password must contain at least one lowercase letter.', 'error');
       return false;
     }
-
-    
-
-
 
     if (!/[0-9]/.test(password)) {
-      console.log('Password must contain at least one number.');
+      showToast('Password must contain at least one number.', 'error');
       return false;
     }
 
-    
-
-
-
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-    console.log('Password must contain at least one special character.');
-     return false;
-  }
-
-    
-
-
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      showToast('Password must contain at least one special character.', 'error');
+      return false;
+    }
 
     if (password !== confirmPassword) {
-      console.log('Passwords do not match.');
+      showToast('Passwords do not match.', 'error');
       return false;
     }
 
     return true;
   }
 
+  // Toast notification function
+  function showToast(message, type = 'info') {
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+    
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+      <div class="toast-content">
+        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+      </div>
+      <button class="toast-close"><i class="fas fa-times"></i></button>
+    `;
+    
+
+    toastContainer.appendChild(toast);
+    
+
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 10);
+    
+
+    const dismissTimeout = setTimeout(() => {
+      dismissToast(toast);
+    }, 5000);
+    
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => {
+      clearTimeout(dismissTimeout);
+      dismissToast(toast);
+    });
+  }
+  
+  function dismissToast(toast) {
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }
 });
-
-
-
-
 
 function logoutUser() {
   const logoutBtn = document.querySelector('.logout-btn');
   if (logoutBtn) {
     logoutBtn.disabled = true;
+    logoutBtn.innerHTML = '<div class="loader"></div> Logging out...';
   }
-
-  
 
   fetch('/api/users/logout', {
     method: 'POST',
@@ -389,17 +345,15 @@ function logoutUser() {
     localStorage.removeItem('user');
     window.location.href = '../../index.html'; 
   })
-
   .catch(error => {
     console.error('Error during logout:', error);
-    alert('Logout failed. Please try again.');
+    showToast('Logout failed. Please try again.', 'error');
     if (logoutBtn) {
       logoutBtn.disabled = false;
+      logoutBtn.innerHTML = 'Logout';
     }
   });
 }
-
-
 
 function checkAuth() {
   const user = localStorage.getItem('user');
@@ -408,37 +362,24 @@ function checkAuth() {
   }
 }
 
-
 window.logoutUser = logoutUser;
 window.checkAuth = checkAuth;
-
-
-
 
 if (!window.location.pathname.includes('../../index.html')) {
   checkAuth();
 }
 
-
-
 function setupPasswordFeatures() {
   const passwordInput = document.getElementById('reg-password');
   const strengthBar = document.getElementById('strengthBar');
   if (!passwordInput) return;
-  //const strengthText = document.getElementById('password-strength-text');
-
 
   passwordInput.addEventListener('input', () => {
     const password = passwordInput.value;
     const strength = calculatePasswordStrength(password);
-
     strengthBar.value = strength;
-
   });
-
 }
-
-
 
 function calculatePasswordStrength(password) {
   let strength = 0;

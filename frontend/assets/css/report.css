@@ -282,3 +282,40 @@
   .card {
     animation: fadeIn 0.5s ease-in-out;
   }
+
+  .total-row {
+    background-color: #f8f9fc;
+    font-weight: bold;
+  }
+  
+  .total-row td {
+    border-top: 2px solid #e3e6f0;
+  }
+  
+
+  #filter-income-month {
+    padding: 8px;
+    border: 1px solid #d1d3e2;
+    border-radius: 4px;
+    width: 150px;
+  }
+  
+
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+  }
+  
+
+  .text-right {
+    text-align: right;
+  }
+  
+  .text-center {
+    text-align: center;
+  }

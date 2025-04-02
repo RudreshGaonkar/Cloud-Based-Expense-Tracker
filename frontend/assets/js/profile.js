@@ -39,12 +39,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('change-password-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    await changePassword();
+    if (!validatePasswordForm()) return;
+    
+    // Get button and show loading state
+    const submitBtn = document.querySelector('#change-password-form button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<div class="loader"></div> Updating...';
+    
+    try {
+      await changePassword();
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Updated!';
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }, 2000);
+    } catch (error) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
   });
 
   document.getElementById('profile-edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    await saveProfileChanges();
+    
+    // Get button and show loading state
+    const submitBtn = document.querySelector('#profile-edit-form button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<div class="loader"></div> Saving...';
+    
+    try {
+      await saveProfileChanges();
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }, 2000);
+    } catch (error) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
   });
 });
 
@@ -196,22 +231,65 @@ async function saveProfileChanges() {
       userNameElement.textContent = name;
     }
 
-    alert('Profile updated successfully!');
+    return true;
   } catch (error) {
     console.error("❌ Error saving profile changes:", error);
     alert(error.message || 'Failed to save profile changes');
+    throw error; // Re-throw to handle in the calling function
   }
+}
+
+function validatePasswordForm() {
+  const currentPassword = document.getElementById('current-password').value;
+  const newPassword = document.getElementById('new-password').value;
+  const confirmPassword = document.getElementById('confirm-password').value;
+
+  if (!currentPassword) {
+    alert("Current password is required!");
+    return false;
+  }
+
+  if (newPassword.length < 8) {
+    alert("Password must be at least 8 characters long.");
+    return false;
+  }
+
+  // Check for at least one uppercase letter
+  if (!/[A-Z]/.test(newPassword)) {
+    alert("Password must contain at least one uppercase letter.");
+    return false;
+  }
+
+  // Check for at least one lowercase letter
+  if (!/[a-z]/.test(newPassword)) {
+    alert("Password must contain at least one lowercase letter.");
+    return false;
+  }
+
+  // Check for at least one number
+  if (!/[0-9]/.test(newPassword)) {
+    alert("Password must contain at least one number.");
+    return false;
+  }
+
+  // Check for at least one special character
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
+    alert("Password must contain at least one special character.");
+    return false;
+  }
+
+  if (newPassword !== confirmPassword) {
+    alert("New passwords do not match!");
+    return false;
+  }
+
+  return true;
 }
 
 async function changePassword() {
   const currentPassword = document.getElementById('current-password').value;
   const newPassword = document.getElementById('new-password').value;
   const confirmPassword = document.getElementById('confirm-password').value;
-
-  if (newPassword !== confirmPassword) {
-    alert("New passwords do not match!");
-    return;
-  }
 
   try {
     const response = await fetch('/api/users/change-password', {
@@ -226,11 +304,12 @@ async function changePassword() {
       throw new Error(data.message || 'Failed to change password');
     }
 
-    alert("Password updated successfully!");
     document.getElementById('change-password-form').reset();
+    return true;
   } catch (error) {
     console.error("❌ Error changing password:", error);
     alert(error.message || 'An unexpected error occurred');
+    throw error; // Re-throw to handle in the calling function
   }
 }
 

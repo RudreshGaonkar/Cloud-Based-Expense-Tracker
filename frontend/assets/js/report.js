@@ -30,6 +30,9 @@ async function initializeDashboard() {
         document.getElementById('filter-year')?.addEventListener('change', fetchFilteredExpenses);
         document.getElementById('apply-filters')?.addEventListener('click', fetchFilteredExpenses);
         document.getElementById('clear-filters')?.addEventListener('click', clearFilters);
+        document.getElementById('filter-income-month')?.addEventListener('change', fetchFilteredIncome);
+        document.getElementById('apply-income-filter')?.addEventListener('click', fetchFilteredIncome);
+        document.getElementById('clear-income-filter')?.addEventListener('click', clearIncomeFilter);
         
 
         document.getElementById('trend-period')?.addEventListener('change', fetchExpenseTrends);
@@ -125,8 +128,6 @@ async function fetchExpenseTrends() {
     try {
         const userId = getUserId();
         if (!userId) return;
-
-        // Get selected period from dropdown or use month as default
         const period = document.getElementById('trend-period')?.value || "month";
         
         console.log(`📊 Fetching expense trends for period: ${period}`);
@@ -173,7 +174,6 @@ function updateTrendChart(data, period) {
         }
     });
 
-    // Get title based on selected period
     let chartTitle = 'Monthly Spending Trend';
     switch (period) {
         case 'day':
@@ -263,113 +263,10 @@ async function fetchIncomeForReports() {
     }
 }
 
-// async function updateIncomeExpenseChart() {
-//     try {
-//         const summaryData = await fetchExpenseSummary();
-//         if (!summaryData) {
-//             console.warn("⚠️ No summary data available.");
-//             return;
-//         }
-
-//         const totalIncome = summaryData.totalIncome || 0;
-//         const totalExpenses = summaryData.totalExpenses || 0;
-//         const remainingIncome = summaryData.remainingIncome !== undefined ? summaryData.remainingIncome : (totalIncome - totalExpenses);
-
-//         if (totalIncome === 0) {
-//             console.warn("⚠️ No income data available.");
-//         }
-
-//         const userId = getUserId();
-//         if (!userId) return;
-        
-
-//         const response = await fetch(`/api/reports/categories?userId=${userId}`);
-//         const categoryData = await response.json();
-
-//         const ctx = document.getElementById('incomeChart')?.getContext('2d');
-//         if (!ctx) {
-//             console.warn("⚠️ Income chart canvas not found!");
-//             return;
-//         }
-
-//         // Destroy existing chart instance if exists
-//         if (incomeChartInstance) {
-//             incomeChartInstance.destroy();
-//         }
-
-//         // Prepare chart data
-//         const expenseCategories = categoryData.map(item => item.category);
-//         const expenseAmounts = categoryData.map(item => item.totalAmount);
-        
-//         const labels = [...expenseCategories];
-//         const data = [...expenseAmounts];
-        
-//         if (remainingIncome > 0) {
-//             labels.push('Remaining Income');
-//             data.push(remainingIncome);
-//         }
-
-//         const backgroundColors = expenseCategories.map((_, index) => {
-//             return `hsl(${index * 40}, 70%, 50%)`;
-//         });
-
-//         if (remainingIncome > 0) {
-//             backgroundColors.push('rgba(75, 192, 120, 0.7)');
-//         }
-
-//         console.log("📊 Creating Income vs Expenses Pie Chart", {
-//             totalIncome,
-//             totalExpenses,
-//             remainingIncome,
-//             categories: labels,
-//             values: data
-//         });
-
-
-//         incomeChartInstance = new Chart(ctx, {
-//             type: 'pie',
-//             data: {
-//                 labels: labels,
-//                 datasets: [{
-//                     data: data,
-//                     backgroundColor: backgroundColors,
-//                     borderWidth: 1
-//                 }]
-//             },
-//             options: {
-//                 responsive: true,
-//                 maintainAspectRatio: false,
-//                 plugins: {
-//                     title: {
-//                         display: true,
-//                         text: `Income Usage Breakdown (Total Income: ${inrFormatter.format(totalIncome)})`
-//                     },
-//                     tooltip: {
-//                         callbacks: {
-//                             label: function(context) {
-//                                 const value = context.raw;
-//                                 const percentage = totalIncome > 0 ? ((value / totalIncome) * 100).toFixed(1) : 0;
-//                                 return `${context.label}: ${inrFormatter.format(value)} (${percentage}%)`;
-//                             }
-//                         }
-//                     },
-//                     legend: {
-//                         position: 'right'
-//                     }
-//                 }
-//             }
-//         });
-
-//     } catch (error) {
-//         console.error("❌ Error updating income vs expense chart:", error);
-//         alert("Failed to load income vs expenses chart. Please try again.");
-//     }
-// }
 async function updateIncomeExpenseChart() {
     try {
-        // Get current month and year
         const now = new Date();
-        const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+        const currentMonth = now.getMonth() + 1; 
         const currentYear = now.getFullYear();
         const currentMonthStr = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
         
@@ -378,19 +275,21 @@ async function updateIncomeExpenseChart() {
         const userId = getUserId();
         if (!userId) return;
         
-        // Fetch current month expense data
+        // Fetch current month expense data with explicit month filter
         const expenseParams = new URLSearchParams({ 
             userId: userId,
-            month: currentMonthStr 
+            month: currentMonthStr  // This ensures we only get current month expenses
         });
         
         const expenseResponse = await fetch(`/api/reports/filtered?${expenseParams.toString()}`);
         const expenseData = await expenseResponse.json();
         
-        // Calculate total expenses for current month
-        const totalMonthlyExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+        // Calculate total expenses from the returned data
+        const totalMonthlyExpenses = expenseData.reduce((sum, expense) => {
+            return sum + expense.amount;
+        }, 0);
         
-        // Fetch category breakdown for current month
+        // Fetch category data for the current month only
         const categoryParams = new URLSearchParams({
             userId: userId,
             month: currentMonthStr
@@ -399,11 +298,9 @@ async function updateIncomeExpenseChart() {
         const categoryResponse = await fetch(`/api/reports/categories?${categoryParams.toString()}`);
         const categoryData = await categoryResponse.json();
         
-        // Fetch current month income data - THIS IS WHERE THE ERROR OCCURS
-        // Changed from /api/income/monthly-income to /api/reports/monthly-income to match your actual routes
+        // Fetch income for current month
         const incomeResponse = await fetch(`/api/reports/monthly-income?month=${currentMonthStr}&userId=${userId}`);
         
-        // Add error handling for the response
         if (!incomeResponse.ok) {
             console.error(`Error fetching income data: ${incomeResponse.status} ${incomeResponse.statusText}`);
             throw new Error(`Failed to fetch income data: ${incomeResponse.status}`);
@@ -414,29 +311,27 @@ async function updateIncomeExpenseChart() {
         const totalMonthlyIncome = incomeData?.totalIncome || 0;
         
         const remainingIncome = totalMonthlyIncome - totalMonthlyExpenses;
-        
-        // Get the canvas context
+
         const ctx = document.getElementById('incomeChart')?.getContext('2d');
         if (!ctx) {
             console.warn("⚠️ Income chart canvas not found!");
             return;
         }
-        
-        // Destroy existing chart instance if it exists
+
         if (incomeChartInstance) {
             incomeChartInstance.destroy();
         }
-        
-        // Prepare data for chart
+
+        // Prepare chart data
         const labels = categoryData.map(item => item.category);
         const data = categoryData.map(item => item.totalAmount);
         
+        // Only add remaining income if positive
         if (remainingIncome > 0) {
             labels.push('Remaining Income');
             data.push(remainingIncome);
         }
         
-        // Generate colors for categories
         const backgroundColors = categoryData.map((_, index) => {
             return `hsl(${index * 40}, 70%, 50%)`;
         });
@@ -444,8 +339,7 @@ async function updateIncomeExpenseChart() {
         if (remainingIncome > 0) {
             backgroundColors.push('rgba(75, 192, 120, 0.7)');
         }
-        
-        // Format month name for display
+
         const monthName = new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'long' });
         
         console.log(`📊 Creating Income vs Expenses Chart for ${monthName} ${currentYear}`, {
@@ -456,7 +350,6 @@ async function updateIncomeExpenseChart() {
             values: data
         });
         
-        // Create new chart
         incomeChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
@@ -492,7 +385,6 @@ async function updateIncomeExpenseChart() {
             }
         });
         
-        // Update summary text elements if they exist
         const monthlyIncomeElement = document.getElementById('monthly-income');
         if (monthlyIncomeElement) {
             monthlyIncomeElement.textContent = inrFormatter.format(totalMonthlyIncome);
@@ -510,10 +402,9 @@ async function updateIncomeExpenseChart() {
         
     } catch (error) {
         console.error("❌ Error updating monthly income vs expense chart:", error);
-        // Don't show alert to avoid annoying users
         console.log("Stack trace:", error.stack);
         
-        // Update UI to show error state instead of alert
+        // Update UI to show error state
         const monthlyIncomeElement = document.getElementById('monthly-income');
         if (monthlyIncomeElement) {
             monthlyIncomeElement.textContent = inrFormatter.format(0);
@@ -530,7 +421,6 @@ async function updateIncomeExpenseChart() {
         }
     }
 }
-
 
 // Fetch Filtered Expenses
 async function fetchFilteredExpenses() {
@@ -656,4 +546,66 @@ async function loadUserInfo() {
 
 function getUserId() {
     return JSON.parse(localStorage.getItem('user'))?.id || null;
+}
+
+async function fetchFilteredIncome() {
+    try {
+        const userId = getUserId();
+        if (!userId) return;
+
+        let month = document.getElementById('filter-income-month').value;
+        
+        const params = new URLSearchParams({ userId });
+        if (month) params.append("month", month);
+
+        console.log("📡 Fetching filtered income with params:", params.toString());
+
+        const response = await fetch(`/api/reports/filtered-income?${params.toString()}`);
+        const data = await response.json();
+
+        console.log("💰 Filtered Income API Response:", data);
+        updateIncomeTable(data);
+    } catch (error) {
+        console.error("❌ Error fetching filtered income:", error);
+    }
+}
+
+// Function to update income table
+function updateIncomeTable(data) {
+    const tableBody = document.getElementById('income-table')?.querySelector('tbody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="3" class="text-center">No income data available for this month.</td></tr>`;
+        return;
+    }
+
+    const totalIncome = data.reduce((sum, income) => sum + income.amount, 0);
+    
+    const totalRow = document.createElement('tr');
+    totalRow.className = 'total-row';
+    totalRow.innerHTML = `
+        <td colspan="2" class="text-right"><strong>Total Income:</strong></td>
+        <td><strong>${inrFormatter.format(totalIncome)}</strong></td>
+    `;
+    
+    data.forEach(income => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${new Date(income.date).toLocaleDateString('en-IN')}</td>
+            <td>${income.title}</td>
+            <td>${inrFormatter.format(income.amount)}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    tableBody.appendChild(totalRow);
+}
+
+function clearIncomeFilter() {
+    document.getElementById('filter-income-month').value = "";
+    console.log("Income filters cleared. Reloading all income data...");
+    fetchFilteredIncome();
 }
