@@ -71,4 +71,4 @@ jobs:
           app-name: 'cloud-based-expense-tracker-app'
           slot-name: 'Production'
           package: ./backend
-          
+          clean: true
