@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadUserProfile();
   setupPasswordFeatures();
   setupAvatarUpload();
+  setupRemoveAvatar();
 
   const toggleButtons = document.querySelectorAll('.password-toggle');
 
@@ -41,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     if (!validatePasswordForm()) return;
     
-    // Get button and show loading state
     const submitBtn = document.querySelector('#change-password-form button[type="submit"]');
     const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('profile-edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Get button and show loading state
     const submitBtn = document.querySelector('#profile-edit-form button[type="submit"]');
     const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
@@ -141,6 +140,11 @@ function loadUserAvatar() {
   const storedAvatar = localStorage.getItem('userAvatar');
   const nameInput = document.getElementById('profile-name-input');
   const userName = nameInput ? nameInput.value : 'User';
+  const removeAvatarBtn = document.getElementById('remove-avatar');
+  
+  if (removeAvatarBtn) {
+    removeAvatarBtn.style.display = storedAvatar ? 'block' : 'none';
+  }
   
   avatarElements.forEach(el => {
     if (storedAvatar) {
@@ -155,11 +159,29 @@ function loadUserAvatar() {
         el.appendChild(img);
       }
     } else {
-      // el.textContent = userName.charAt(0).toUpperCase();
+      el.innerHTML = '<i class="fa-solid fa-user"></i>';
     }
   });
 }
 
+function setupRemoveAvatar() {
+  const removeAvatarBtn = document.getElementById('remove-avatar');
+  
+  if (!removeAvatarBtn) return;
+  
+  removeAvatarBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    if (confirm('Are you sure you want to remove your profile picture?')) {
+
+      localStorage.removeItem('userAvatar');
+
+      loadUserAvatar();
+      
+      removeAvatarBtn.style.display = 'none';
+    }
+  });
+}
 
 function setupAvatarUpload() {
   const avatarInput = document.getElementById('avatar-input');
@@ -235,7 +257,7 @@ async function saveProfileChanges() {
   } catch (error) {
     console.error("❌ Error saving profile changes:", error);
     alert(error.message || 'Failed to save profile changes');
-    throw error; // Re-throw to handle in the calling function
+    throw error; 
   }
 }
 
@@ -254,25 +276,23 @@ function validatePasswordForm() {
     return false;
   }
 
-  // Check for at least one uppercase letter
+
   if (!/[A-Z]/.test(newPassword)) {
     alert("Password must contain at least one uppercase letter.");
     return false;
   }
 
-  // Check for at least one lowercase letter
   if (!/[a-z]/.test(newPassword)) {
     alert("Password must contain at least one lowercase letter.");
     return false;
   }
 
-  // Check for at least one number
+
   if (!/[0-9]/.test(newPassword)) {
     alert("Password must contain at least one number.");
     return false;
   }
 
-  // Check for at least one special character
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
     alert("Password must contain at least one special character.");
     return false;
@@ -309,7 +329,7 @@ async function changePassword() {
   } catch (error) {
     console.error("❌ Error changing password:", error);
     alert(error.message || 'An unexpected error occurred');
-    throw error; // Re-throw to handle in the calling function
+    throw error; 
   }
 }
 

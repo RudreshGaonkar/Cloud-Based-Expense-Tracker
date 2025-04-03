@@ -4,31 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reports - CloudBased Expense Tracker</title>
-  <link rel="stylesheet" href="../assets/css/style.css" />
   <link rel="stylesheet" href="../assets/css/dashboard.css" />
   <link rel="stylesheet" href="../assets/css/report.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
   <link rel="stylesheet" href="../assets/css/profile.css" />
   <link rel="stylesheet" href="../assets/css/responsive.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="../assets/js/auth.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      checkAuth();
-      fetch('./components/sidebar.html')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('sidebar').innerHTML = data;
-          const activeLink = document.querySelector(`.sidebar-link[href*="reports"]`);
-          if (activeLink) activeLink.classList.add('active');
-        })
-        .catch(error => console.error('Error loading sidebar:', error));
-
-      // document.querySelector('.toggle-sidebar').addEventListener('click', () => {
-      //   document.querySelector('.app-container').classList.toggle('sidebar-collapsed');
-      // });
-    });
-  </script>
+  <script src="../assets/js/sidebar.js"></script>
 </head>
 <body>
   <div class="app-container">
@@ -36,7 +20,7 @@
    
     <div class="main-content">
       <div class="topbar">
-        <div class=""></div>
+        <div></div>
         <div class="user-info">
           <div class="user-profile">
             <span id="user-name">Loading...</span>
@@ -105,11 +89,11 @@
 
         <div class="card">
           <div class="card-header">
-            <h3>Daily/Wekkly/Monthly/Yearly Transactions</h3>
+            <h3>Expense Records</h3>
           </div>
 
           <div class="filter-container">
-            <label for="filter-date">Select Date:</label>
+            <!-- <label for="filter-date">Select Date:</label>
             <input type="date" id="filter-date">
 
             <label for="filter-month">Select Month:</label>
@@ -118,11 +102,9 @@
             <label for="filter-year">Select Year:</label>
             <input type="number" id="filter-year" min="2000" max="2100" placeholder="YYYY">
 
-            <button id="apply-filters" class="btn btn-primary">Apply Filters</button>
+            <button id="apply-filters" class="btn btn-primary">Apply Filters</button> -->
           </div>
-
           <div class="card-body">
-            <h3>If you want to filter by month then you have to specify year, ("In that You can ignore date")</h3>
             <div class="table-responsive">
               <table class="data-table" id="expenses-table">
                 <thead>
@@ -138,11 +120,9 @@
               </table>
             </div>
 
-            <div class="table-buttons">
-              <!-- <button id="export-pdf" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Export PDF</button>
-              <button id="export-csv" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</button> -->
+            <!-- <div class="table-buttons">
               <button id="clear-filters" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filters</button>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -161,40 +141,29 @@
     <button id="clear-income-filter" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filter</button>
   </div>
 
-  <div class="card-body">
-    <h3>Monthly Income Records</h3>
-    <p>View your income transactions for the selected month</p>
-    <div class="table-responsive">
-      <table class="data-table" id="income-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Source</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Income data will be dynamically loaded here -->
-          <tr>
-            <td colspan="3" class="text-center">Select a month to view income records</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="card-body">
+        <h3>Monthly Income Records</h3>
+        <p>View your income transactions for the selected month</p>
+        <div class="table-responsive">
+          <table class="data-table" id="income-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Income data will be dynamically loaded here -->
+              <tr>
+                <td colspan="3" class="text-center">Select a month to view income records</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-
-        <!-- <h3>Total Income This Month</h3>
-        <p id="totalIncomeReport">₹0.00</p> -->
-        <!-- <div class="card">
-          <div class="card-header">
-            <h3>Income vs Expenses</h3>
-          </div>
-          <div class="card-body chart-container">
-            <canvas id="incomeChart" style="width:100%; height:300px;"></canvas>
-          </div>
-        </div> -->
         <div class="card">
           <div class="card-header">
             <h3>This Month's Overview</h3>
@@ -226,17 +195,12 @@
             <canvas id="incomeChart" style="width:100%; height:300px;"></canvas>
           </div>
         </div>
-    
-   
-
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script src="../assets/js/report.js"></script>
-  <script>
-    // alert("✅ User stored in localStorage:"+ localStorage.getItem('user'));
-  </script>
+  <script src="../assets/js/sidebar-toggle.js"></script>
 </body>
 </html>

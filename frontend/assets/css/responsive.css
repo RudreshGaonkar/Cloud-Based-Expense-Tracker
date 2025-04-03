@@ -1,24 +1,117 @@
-@media (max-width: 768px) {
-    .login-container {
-      flex-direction: column;
-      height: auto;
-    }
-    .login-left,
-    .login-right {
-      width: 100%;
-      padding: 20px;
-    }
-    .sidebar {
-      width: 100%;
-      position: relative;
-      height: auto;
-    }
-    .topbar {
-      left: 0;
-    }
-    .main-content {
-      margin-left: 0;
-      width: 100%;
-    }
+@media ((min-device-width: 412px) or (min-device-width: 390px) or (min-device-width: 375px) or (min-device-width: 360px) or (min-device-width: 344px)) 
+and ((max-device-height: 915px) or (max-device-height: 932px) or (max-device-height: 667px) or (max-device-height: 740px) or (max-device-height: 882px)) 
+and (orientation: portrait) {
+  
+
+  .app-container {
+    flex-direction: column;
   }
   
+  .sidebar {
+    position: fixed;
+    left: 0;
+    width: 250px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
+  }
+  
+  .topbar-menu {
+    display: flex;
+    cursor: pointer;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    transition: margin-left 0.3s ease;
+    padding: 10px;
+  }
+
+  .topbar {
+    padding: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  
+  .topbar-menu li {
+    font-size: 1.5rem;
+  }
+  
+  .card {
+    margin-bottom: 15px;
+    padding: 15px;
+  }
+  
+  .summary-cards {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .summary-card {
+    width: 100%;
+    margin-right: 0;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .form-group {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .profile-container {
+    flex-direction: column;
+  }
+  
+  .card.profile-details,
+  .card.password-section {
+    width: 100%;
+  }
+  
+  .team-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-card {
+    height: auto;
+  }
+
+  .income-expense-details {
+    flex-direction: column;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-content {
+    width: 90%;
+    max-width: 90%;
+    padding: 15px;
+  }
+}

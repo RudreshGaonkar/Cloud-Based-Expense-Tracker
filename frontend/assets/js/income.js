@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const incomeForm = document.getElementById("incomeForm");
   const incomeDateInput = document.getElementById("incomeDate");
-
+  let isEditMode = false;
+  let currentIncomeId = null;
 
   function setMaxDateToToday() {
     const today = new Date();
@@ -17,7 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   setMaxDateToToday();
 
-  incomeForm.addEventListener("reset", setMaxDateToToday);
+  incomeForm.addEventListener("reset", function() {
+    setMaxDateToToday();
+    exitEditMode();
+  });
 
   if (incomeForm) {
       incomeForm.addEventListener("submit", async (e) => {
@@ -26,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const amount = document.getElementById("incomeAmount").value;
           const date = document.getElementById("incomeDate").value;
           const description = document.getElementById("incomeDescription").value;
-          // const submitButton = incomeForm.querySelector("button[type='submit']");
           const submitButton = document.getElementById("add-income");
           const originalButtonText = submitButton.innerHTML;
           
@@ -56,13 +59,22 @@ document.addEventListener("DOMContentLoaded", function () {
           if (inputDateOnly > todayOnly) {
               submitButton.innerHTML = originalButtonText;
               submitButton.disabled = false;
-              alert('Future dates are not allowed for expenses.');
+              alert('Future dates are not allowed for income entries.');
               return;
           }
 
           try {
-              const response = await fetch("/api/income/add", {
-                  method: "POST",
+              let url = "/api/income/add";
+              let method = "POST";
+              
+              // If in edit mode, update instead of add
+              if (isEditMode && currentIncomeId) {
+                url = `/api/income/update/${currentIncomeId}`;
+                method = "PUT";
+              }
+              
+              const response = await fetch(url, {
+                  method: method,
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ amount, date, description }),
               });
@@ -70,9 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
               const result = await response.json();
 
               if (!response.ok) {
-                  throw new Error(result.message || "Failed to add income.");
+                  throw new Error(result.message || "Failed to process income.");
               }
-
 
               submitButton.innerHTML = '<i class="fas fa-check"></i> Success!';
               
@@ -81,11 +92,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 submitButton.disabled = false;
               }, 1500);
               
-              alert(result.message || "Income added successfully");
+              alert(result.message || (isEditMode ? "Income updated successfully" : "Income added successfully"));
               incomeForm.reset();
+              exitEditMode();
               fetchIncomeRecords(1); 
           } catch (error) {
-              console.error("Error adding income:", error);
+              console.error(`Error ${isEditMode ? 'updating' : 'adding'} income:`, error);
               
               submitButton.innerHTML = originalButtonText;
               submitButton.disabled = false;
@@ -109,7 +121,105 @@ document.addEventListener("DOMContentLoaded", function () {
           fetchIncomeRecords(currentPage + 1);
       }
   });
+  
+  // Add cancel button event listener
+  document.getElementById("cancel-edit").addEventListener("click", (e) => {
+    e.preventDefault();
+    exitEditMode();
+    incomeForm.reset();
+  });
 });
+
+function enterEditMode(incomeId, amount, date, description) {
+  isEditMode = true;
+  currentIncomeId = incomeId;
+  
+  document.getElementById("incomeAmount").value = amount;
+  document.getElementById("incomeDate").value = formatDateForInput(date);
+  document.getElementById("incomeDescription").value = description;
+  
+  const submitButton = document.getElementById("add-income");
+  submitButton.innerHTML = '<i class="fas fa-save"></i> Update Income';
+  document.getElementById("cancel-edit").style.display = "block";
+  
+  document.querySelector(".card").scrollIntoView({behavior: "smooth"});
+}
+
+function exitEditMode() {
+  isEditMode = false;
+  currentIncomeId = null;
+  
+  const submitButton = document.getElementById("add-income");
+  submitButton.innerHTML = '<i class="fas fa-plus"></i> Add Income';
+  document.getElementById("cancel-edit").style.display = "none";
+}
+
+function formatDateForInput(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// async function deleteIncome(incomeId) {
+//   if (confirm("Are you sure you want to delete this income entry?")) {
+//     try {
+//       const response = await fetch(`/api/income/delete/${incomeId}`, {
+//         method: "DELETE"
+//       });
+      
+//       const result = await response.json();
+      
+//       if (!response.ok) {
+//         throw new Error(result.message || "Failed to delete income entry.");
+//       }
+      
+//       alert(result.message || "Income entry deleted successfully.");
+//       fetchIncomeRecords(); 
+//     } catch (error) {
+//       console.error("Error deleting income:", error);
+//       alert(error.message);
+//     }
+//   }
+// }
+async function deleteIncome(incomeId) {
+  if (confirm("Are you sure you want to delete this income entry?")) {
+    try {
+      const deleteButton = event.currentTarget;
+      deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      deleteButton.disabled = true;
+      
+      const response = await fetch(`/api/income/delete/${incomeId}`, {
+        method: "DELETE"
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to delete income entry.");
+      }
+      
+      deleteButton.innerHTML = '<i class="fas fa-check"></i>';
+      
+      setTimeout(() => {
+        alert(result.message || "Income entry deleted successfully.");
+        fetchIncomeRecords(); 
+      }, 500);
+    } catch (error) {
+      console.error("Error deleting income:", error);
+      
+      if (event && event.currentTarget) {
+        const deleteButton = event.currentTarget;
+        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteButton.disabled = false;
+      }
+      
+      alert(error.message);
+    }
+  }
+}
+
 
 async function fetchIncomeRecords(page = 1) {
   try {
@@ -127,21 +237,28 @@ async function fetchIncomeRecords(page = 1) {
                   <td>₹${income.amount}</td>
                   <td>${new Date(income.date).toLocaleDateString()}</td>
                   <td>${income.description || "N/A"}</td>
+                  <td class="action-buttons">
+                    <button class="btn-edit" onclick="enterEditMode(${income.id}, ${income.amount}, '${income.date}', '${income.description.replace(/'/g, "\\'")}')">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-delete" onclick="deleteIncome(${income.id})">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
               `;
               incomeTableBody.appendChild(row);
           });
-
 
           document.getElementById("currentPage").textContent = data.currentPage;
           document.getElementById("totalPages").textContent = data.totalPages;
           document.getElementById("paginationControls").style.display = data.totalPages > 1 ? "flex" : "none";
       } else {
-          incomeTableBody.innerHTML = `<tr><td colspan="3" class="text-center">No income records found.</td></tr>`;
+          incomeTableBody.innerHTML = `<tr><td colspan="4" class="text-center">No income records found.</td></tr>`;
           document.getElementById("paginationControls").style.display = "none";
       }
   } catch (error) {
       console.error("Error fetching income records:", error);
-      incomeTableBody.innerHTML = `<tr><td colspan="3" class="text-center">Error loading records.</td></tr>`;
+      incomeTableBody.innerHTML = `<tr><td colspan="4" class="text-center">Error loading records.</td></tr>`;
   }
 }
 
@@ -154,7 +271,6 @@ async function loadUserInfo() {
       const data = await response.json();
       userData = data.user;
       
-
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = { ...currentUser, ...userData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -166,12 +282,10 @@ async function loadUserInfo() {
       userData = JSON.parse(storedUser);
     }
 
-
     const userNameElement = document.getElementById('user-name');
     if (userNameElement) {
       userNameElement.textContent = userData.name;
     }
-
 
     const nameInput = document.getElementById('profile-name-input');
     if (nameInput) {

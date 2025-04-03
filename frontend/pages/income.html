@@ -80,6 +80,43 @@
     .page-info {
       margin: 0 10px;
     }
+    
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    #cancel-edit {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+      display: none;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .btn-edit, .btn-delete {
+      border: none;
+      border-radius: 4px;
+      padding: 5px 8px;
+      cursor: pointer;
+    }
+    
+    .btn-edit {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
     </style>
       <link rel="stylesheet" href="../assets/css/style.css" />
       <link rel="stylesheet" href="../assets/css/dashboard.css" />
@@ -91,7 +128,7 @@
     
     <div class="main-content">
       <div class="topbar">
-        <div class=""></div>
+        <div></div>
         <div class="user-profile">
           <span id="user-name">Loading...</span>
           <div class="avatar" id="user-avatar"><i class="fa-solid fa-user"></i></div>
@@ -115,7 +152,15 @@
           
           <label for="incomeDescription">Source:</label>
           <input type="text" id="incomeDescription" name="description" required>
-          <button type="submit" class="btn btn-primary btn-block" id="add-income">Add Income</button>
+          
+          <div class="form-buttons">
+            <button type="submit" class="btn btn-primary btn-block" id="add-income">
+              <i class="fas fa-plus"></i> Add Income
+            </button>
+            <button type="button" class="btn" id="cancel-edit">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
         </form>
       </div>
 
@@ -129,11 +174,12 @@
                 <th>Amount</th>
                 <th>Date</th>
                 <th>Source</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="incomeTableBody">
               <tr>
-                <td colspan="3" class="text-center">Loading income records...</td>
+                <td colspan="4" class="text-center">Loading income records...</td>
               </tr>
             </tbody>
           </table>
@@ -154,6 +200,6 @@
       </div>
     </div>
   </div>
-
+  <script src="../assets/js/sidebar-toggle.js"></script>
 </body>
 </html>

@@ -11,6 +11,7 @@ async function initializeDashboard() {
         await fetchIncomeForReports();
         await fetchFilteredExpenses();
         await updateIncomeExpenseChart(); 
+        await updateExpenseFilters();
         
         console.log("Checking stored user:", localStorage.getItem('user'));
         const user = JSON.parse(localStorage.getItem('user'));
@@ -25,11 +26,8 @@ async function initializeDashboard() {
 
         console.log("User ID found:", userId);
 
-        document.getElementById('filter-date')?.addEventListener('change', fetchFilteredExpenses);
-        document.getElementById('filter-month')?.addEventListener('change', fetchFilteredExpenses);
-        document.getElementById('filter-year')?.addEventListener('change', fetchFilteredExpenses);
-        document.getElementById('apply-filters')?.addEventListener('click', fetchFilteredExpenses);
-        document.getElementById('clear-filters')?.addEventListener('click', clearFilters);
+        document.getElementById('apply-expense-filter')?.addEventListener('click', fetchFilteredExpenses);
+        document.getElementById('clear-expense-filter')?.addEventListener('click', clearExpenseFilter);
         document.getElementById('filter-income-month')?.addEventListener('change', fetchFilteredIncome);
         document.getElementById('apply-income-filter')?.addEventListener('click', fetchFilteredIncome);
         document.getElementById('clear-income-filter')?.addEventListener('click', clearIncomeFilter);
@@ -52,12 +50,51 @@ const inrFormatter = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2
 });
 
-function clearFilters() {
-    document.getElementById('filter-date').value = "";
-    document.getElementById('filter-month').value = "";
-    document.getElementById('filter-year').value = "";
+async function updateExpenseFilters() {
+    const filterContainer = document.querySelector('.card:has(#expenses-table) .filter-container');
+    if (!filterContainer) return;
+    const today = new Date();
+    const yearMonth = today.toISOString().slice(0, 7);
+    
+    // Replace the current filter container content with a single month input
+    filterContainer.innerHTML = `
+        <label for="filter-expense-month">Select Month (YYYY-MM):</label>
+        <input type="text" id="filter-expense-month" placeholder="e.g. ${yearMonth}">
 
-    console.log("Filters cleared. Reloading all expenses...");
+        <button id="apply-expense-filter" class="btn btn-primary">Apply Filter</button>
+        <button id="clear-expense-filter" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filter</button>
+    `;
+    
+
+    document.getElementById('apply-expense-filter')?.addEventListener('click', fetchFilteredExpenses);
+    document.getElementById('clear-expense-filter')?.addEventListener('click', clearExpenseFilter);
+}
+
+async function fetchFilteredExpenses() {
+    try {
+        const userId = getUserId();
+        if (!userId) return;
+
+        let month = document.getElementById('filter-expense-month').value;
+        
+        const params = new URLSearchParams({ userId });
+        if (month) params.append("month", month);
+
+        console.log("📡 Fetching filtered expenses with params:", params.toString());
+
+        const response = await fetch(`/api/reports/filtered?${params.toString()}`);
+        const data = await response.json();
+
+        console.log("📊 Filtered Expenses API Response:", data);
+        updateFinancialTable(data);
+    } catch (error) {
+        console.error("❌ Error fetching filtered expenses:", error);
+    }
+}
+
+function clearExpenseFilter() {
+    document.getElementById('filter-expense-month').value = "";
+    console.log("Expense filters cleared. Reloading all expense data...");
     fetchFilteredExpenses();
 }
 
@@ -275,16 +312,14 @@ async function updateIncomeExpenseChart() {
         const userId = getUserId();
         if (!userId) return;
         
-        // Fetch current month expense data with explicit month filter
         const expenseParams = new URLSearchParams({ 
             userId: userId,
-            month: currentMonthStr  // This ensures we only get current month expenses
+            month: currentMonthStr  
         });
         
         const expenseResponse = await fetch(`/api/reports/filtered?${expenseParams.toString()}`);
         const expenseData = await expenseResponse.json();
         
-        // Calculate total expenses from the returned data
         const totalMonthlyExpenses = expenseData.reduce((sum, expense) => {
             return sum + expense.amount;
         }, 0);
@@ -298,7 +333,6 @@ async function updateIncomeExpenseChart() {
         const categoryResponse = await fetch(`/api/reports/categories?${categoryParams.toString()}`);
         const categoryData = await categoryResponse.json();
         
-        // Fetch income for current month
         const incomeResponse = await fetch(`/api/reports/monthly-income?month=${currentMonthStr}&userId=${userId}`);
         
         if (!incomeResponse.ok) {
@@ -404,7 +438,6 @@ async function updateIncomeExpenseChart() {
         console.error("❌ Error updating monthly income vs expense chart:", error);
         console.log("Stack trace:", error.stack);
         
-        // Update UI to show error state
         const monthlyIncomeElement = document.getElementById('monthly-income');
         if (monthlyIncomeElement) {
             monthlyIncomeElement.textContent = inrFormatter.format(0);
@@ -423,32 +456,53 @@ async function updateIncomeExpenseChart() {
 }
 
 // Fetch Filtered Expenses
-async function fetchFilteredExpenses() {
-    try {
-        const userId = getUserId();
-        if (!userId) return;
+// async function fetchFilteredExpenses() {
+//     try {
+//         const userId = getUserId();
+//         if (!userId) return;
 
-        let date = document.getElementById('filter-date').value;
-        let month = document.getElementById('filter-month').value;
-        let year = document.getElementById('filter-year').value;
+//         let date = document.getElementById('filter-date').value;
+//         let month = document.getElementById('filter-month').value;
+//         let year = document.getElementById('filter-year').value;
 
-        const params = new URLSearchParams({ userId });
-        if (date) params.append("date", date);
-        if (month) params.append("month", month);
-        if (year) params.append("year", year);
+//         const params = new URLSearchParams({ userId });
+//         if (date) params.append("date", date);
+//         if (month) params.append("month", month);
+//         if (year) params.append("year", year);
 
-        console.log("📡 Fetching filtered expenses with params:", params.toString());
+//         console.log("📡 Fetching filtered expenses with params:", params.toString());
 
-        const response = await fetch(`/api/reports/filtered?${params.toString()}`);
-        const data = await response.json();
+//         const response = await fetch(`/api/reports/filtered?${params.toString()}`);
+//         const data = await response.json();
 
-        console.log("📊 Filtered Expenses API Response:", data);
-        updateFinancialTable(data);
-    } catch (error) {
-        console.error("❌ Error fetching filtered expenses:", error);
-    }
-}
+//         console.log("📊 Filtered Expenses API Response:", data);
+//         updateFinancialTable(data);
+//     } catch (error) {
+//         console.error("❌ Error fetching filtered expenses:", error);
+//     }
+// }
 
+// function updateFinancialTable(data) {
+//     const tableBody = document.getElementById('expenses-table')?.querySelector('tbody');
+//     if (!tableBody) return;
+    
+//     tableBody.innerHTML = '';
+
+//     if (!Array.isArray(data) || data.length === 0) {
+//         tableBody.innerHTML = `<tr><td colspan="3" class="text-center">No data available.</td></tr>`;
+//         return;
+//     }
+
+//     data.forEach(expense => {
+//         const row = document.createElement('tr');
+//         row.innerHTML = `
+//             <td>${new Date(expense.date).toLocaleDateString('en-IN')}</td>
+//             <td>${expense.title}</td>
+//             <td>${inrFormatter.format(expense.amount)}</td>
+//         `;
+//         tableBody.appendChild(row);
+//     });
+// }
 function updateFinancialTable(data) {
     const tableBody = document.getElementById('expenses-table')?.querySelector('tbody');
     if (!tableBody) return;
@@ -460,6 +514,9 @@ function updateFinancialTable(data) {
         return;
     }
 
+    // Calculate total expenses from the displayed records
+    const totalExpenses = data.reduce((sum, expense) => sum + expense.amount, 0);
+    
     data.forEach(expense => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -469,6 +526,15 @@ function updateFinancialTable(data) {
         `;
         tableBody.appendChild(row);
     });
+    
+    // Add a total row at the bottom
+    const totalRow = document.createElement('tr');
+    totalRow.className = 'total-row';
+    totalRow.innerHTML = `
+        <td colspan="2" class="text-right"><strong>Total Expenses:</strong></td>
+        <td><strong>${inrFormatter.format(totalExpenses)}</strong></td>
+    `;
+    tableBody.appendChild(totalRow);
 }
 
 async function loadUserInfo() {
@@ -595,7 +661,7 @@ function updateIncomeTable(data) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${new Date(income.date).toLocaleDateString('en-IN')}</td>
-            <td>${income.title}</td>
+            <td>${income.description || "NA"}</td>
             <td>${inrFormatter.format(income.amount)}</td>
         `;
         tableBody.appendChild(row);

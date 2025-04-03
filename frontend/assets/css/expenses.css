@@ -757,3 +757,8 @@ textarea {
   justify-content: flex-end;
   gap: 10px;
 }
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}

@@ -270,34 +270,6 @@
   font-weight: 500;
 }
 
-/* Toggle Sidebar */
-/* .toggle-sidebar {
-  display: none;
-  width: 24px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-} */
-
-/* .toggle-sidebar:before,
-.toggle-sidebar:after {
-  content: '';
-  position: absolute;
-  width: 24px;
-  height: 2px;
-  background-color: var(--text-color);
-  left: 0;
-  transition: all 0.3s ease;
-} */
-
-/* .toggle-sidebar:before {
-  top: 8px;
-}
-
-.toggle-sidebar:after {
-  top: 16px;
-} */
-
 /* Responsive Adjustments */
 @media screen and (max-width: 992px) {
   .sidebar {
@@ -379,8 +351,6 @@
   }
 }
 
-/* Notification Styles */
-/* Additional CSS for dashboard.css */
 
 /* Toast Notifications */
 .toast-container {
@@ -483,13 +453,6 @@
   height: 40px;
 }
 
-.toggle-sidebar:before {
-  content: '\f0c9';
-  font-family: 'Font Awesome 6 Free';
-  font-weight: 900;
-  font-size: 20px;
-}
-
 /* Avatar Styling */
 .avatar {
   width: 35px;
@@ -504,7 +467,6 @@
   margin-left: 10px;
 }
 
-/* Table Styling Improvements */
 .expense-table {
   width: 100%;
   border-collapse: collapse;

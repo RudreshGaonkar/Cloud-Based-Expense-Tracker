@@ -20,6 +20,61 @@ class Income {
             return { success: false, message: "Failed to add income." };
         }
     }
+    
+    static async updateIncome(incomeId, userId, amount, date, description) {
+        try {
+            const pool = await poolPromise;
+            await pool.request()
+                .input('IncomeId', sql.Int, incomeId)
+                .input('UserId', sql.Int, userId)
+                .input('Amount', sql.Decimal(18,2), amount)
+                .input('Date', sql.Date, date)
+                .input('Description', sql.VarChar(255), description)
+                .query(`
+                    UPDATE dbo.Income 
+                    SET amount = @Amount, date = @Date, description = @Description
+                    WHERE id = @IncomeId AND userId = @UserId
+                `);
+            return { success: true, message: "Income updated successfully." };
+        } catch (error) {
+            console.error("Error updating income:", error);
+            return { success: false, message: "Failed to update income." };
+        }
+    }
+    
+    static async deleteIncome(incomeId) {
+        try {
+            const pool = await poolPromise;
+            await pool.request()
+                .input('IncomeId', sql.Int, incomeId)
+                .query(`
+                    DELETE FROM dbo.Income 
+                    WHERE id = @IncomeId
+                `);
+            return { success: true, message: "Income deleted successfully." };
+        } catch (error) {
+            console.error("Error deleting income:", error);
+            return { success: false, message: "Failed to delete income." };
+        }
+    }
+    
+    static async verifyOwnership(incomeId, userId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('IncomeId', sql.Int, incomeId)
+                .input('UserId', sql.Int, userId)
+                .query(`
+                    SELECT COUNT(*) as count 
+                    FROM dbo.Income 
+                    WHERE id = @IncomeId AND userId = @UserId
+                `);
+            return result.recordset[0].count > 0;
+        } catch (error) {
+            console.error("Error verifying income ownership:", error);
+            return false;
+        }
+    }
 
     static async getTotalIncome(userId, month, year) {
         try {
@@ -45,14 +100,13 @@ class Income {
             const offset = (page - 1) * limit;
             const pool = await poolPromise;
             
-            // Get paginated records
             const recordsResult = await pool
                 .request()
                 .input('userId', sql.Int, userId)
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit)
                 .query(`
-                    SELECT amount, date, description
+                    SELECT id, amount, date, description
                     FROM dbo.Income
                     WHERE userId = @userId
                     ORDER BY date DESC

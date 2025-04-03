@@ -51,6 +51,12 @@ function confirmDeleteExpense(expenseId) {
 
 async function deleteExpense(expenseId) {
   try {
+      // Find the delete button and replace with loading indicator
+      const deleteBtn = document.querySelector(`.delete-expense[data-id="${expenseId}"]`);
+      const originalContent = deleteBtn.innerHTML;
+      deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      deleteBtn.disabled = true;
+      
       const response = await fetch(`/api/expenses/${expenseId}`, { method: 'DELETE' });
 
       if (response.ok) {
@@ -58,9 +64,18 @@ async function deleteExpense(expenseId) {
           fetchExpenses(currentPage); 
       } else {
           alert("Failed to delete expense.");
+          // Restore button if deletion fails
+          deleteBtn.innerHTML = originalContent;
+          deleteBtn.disabled = false;
       }
   } catch (error) {
       console.error("Error deleting expense:", error);
+      // Find and restore the button in case of error
+      const deleteBtn = document.querySelector(`.delete-expense[data-id="${expenseId}"]`);
+      if (deleteBtn) {
+          deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+          deleteBtn.disabled = false;
+      }
   }
 }
 
@@ -135,7 +150,7 @@ function updateExpenseTable(expenses) {
               <button class="btn-icon edit-expense" data-id="${expense.id}">
                   
               </button>
-              <button class="btn-icon delete-expense" data-id="${expense.id}">
+              <button class="btn-icon delete-expense btn-delete" data-id="${expense.id}">
                   <i class="fas fa-trash"></i>
               </button>
           </td>

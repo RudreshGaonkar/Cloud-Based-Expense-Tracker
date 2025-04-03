@@ -4,8 +4,8 @@
     --primary-dark: #5240c9;
     --secondary-color: #f8f9fa;
     --text-color: #333;
-    --text-light: #757575;
-    --border-color: #e0e0e0;
+    --text-light: #6f6f6f;
+    --border-color: #cac9c9;
     --danger-color: #dc3545;
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --border-radius: 8px;
@@ -264,7 +264,7 @@
     border-color: var(--primary-light);
   }
   
-  /* Modal improvements */
+
   .modal {
     display: none;
     position: fixed;
@@ -449,7 +449,7 @@
     transition: background 0.3s;
   }
   
-  .sidebar-menu ul li a:hover {
+  .sidebar-menu ul li a:hover, .sidebar-menu ul li a:active {
     background: var(--primary-light);
     color: var(--primary-dark);
     border-radius: 0 30px 30px 0;
@@ -507,8 +507,6 @@
     position: relative;
   }
 
-/* Add these styles to your existing style.css file */
-
 /* ----------------- Loading Animation ----------------- */
 .loader {
   display: inline-block;
@@ -528,13 +526,13 @@
   }
 }
 
-/* For buttons with loader */
+
 button:disabled {
   opacity: 0.8;
   cursor: not-allowed;
 }
 
-/* For buttons with loader inside */
+
 button:disabled .loader {
   display: inline-block;
 }

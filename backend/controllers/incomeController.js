@@ -30,6 +30,53 @@ exports.addIncome = async (req, res) => {
     return res.status(result.success ? 200 : 500).json(result);
 };
 
+exports.updateIncome = async (req, res) => {
+    try {
+        const { amount, date, description } = req.body;
+        const incomeId = req.params.id;
+        const userId = req.session.user ? req.session.user.id : null;
+
+        if (!userId) return res.status(401).json({ message: "Unauthorized. Please log in." });
+
+        if (!amount || !date) {
+            return res.status(400).json({ message: "Amount and date are required." });
+        }
+
+        // Verify ownership before update
+        const isOwner = await Income.verifyOwnership(incomeId, userId);
+        if (!isOwner) {
+            return res.status(403).json({ message: "You don't have permission to update this income entry." });
+        }
+
+        const result = await Income.updateIncome(incomeId, userId, amount, date, description);
+        return res.status(result.success ? 200 : 500).json(result);
+    } catch (error) {
+        console.error('Error updating income:', error);
+        return res.status(500).json({ message: 'Failed to update income entry.' });
+    }
+};
+
+exports.deleteIncome = async (req, res) => {
+    try {
+        const incomeId = req.params.id;
+        const userId = req.session.user ? req.session.user.id : null;
+
+        if (!userId) return res.status(401).json({ message: "Unauthorized. Please log in." });
+
+        // Verify ownership before deletion
+        const isOwner = await Income.verifyOwnership(incomeId, userId);
+        if (!isOwner) {
+            return res.status(403).json({ message: "You don't have permission to delete this income entry." });
+        }
+
+        const result = await Income.deleteIncome(incomeId);
+        return res.status(result.success ? 200 : 500).json(result);
+    } catch (error) {
+        console.error('Error deleting income:', error);
+        return res.status(500).json({ message: 'Failed to delete income entry.' });
+    }
+};
+
 exports.getTotalIncome = async (req, res) => {
     const userId = req.session.user ? req.session.user.id : null;
     if (!userId) return res.status(401).json({ message: "Unauthorized. Please log in." });
