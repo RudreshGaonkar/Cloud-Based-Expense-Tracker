@@ -2,7 +2,8 @@ CREATE TABLE Users (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(100),
     email NVARCHAR(100) UNIQUE,
-    password NVARCHAR(255)
+    password NVARCHAR(255),
+    googleId NVARCHAR(255),
 );
 
 CREATE TABLE Categories (

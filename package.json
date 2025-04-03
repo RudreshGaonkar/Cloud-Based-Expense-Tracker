@@ -1,9 +1,9 @@
 {
-  "name": "cloud-based-expense-tracker-test2",
+  "name": "cloud-based-expense-tracker-test",
   "version": "1.0.0",
-  "main": "./backend/server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node ./backend/server.js",
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "build": "echo 'No build step needed'"
   },
