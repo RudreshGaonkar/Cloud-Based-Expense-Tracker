@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="../assets/js/auth.js"></script>
   <script src="../assets/js/sidebar.js"></script>
+  <script src="../assets/js/report.js"></script>
 </head>
 <body>
   <div class="app-container">
@@ -133,13 +134,28 @@
     <h3>Income Records</h3>
   </div>
 
-  <div class="filter-container">
+  <!-- <div class="filter-container">
     <label for="filter-income-month">Select Month (YYYY-MM):</label>
     <input type="text" id="filter-income-month" placeholder="e.g. 2025-04">
 
     <button id="apply-income-filter" class="btn btn-primary">Apply Filter</button>
     <button id="clear-income-filter" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filter</button>
-  </div>
+  </div> -->
+  <div class="filter-container">
+    <div class="month">
+      <label for="filter-income-month">Select Month (YYYY-MM):</label>
+      <input type="text" id="filter-income-month" placeholder="e.g. 2025-04">
+    </div>
+    
+    <div class="date-range">
+        <label>Date Range:</label>
+        <input type="date" id="filter-income-start-date" placeholder="Start Date">
+        <input type="date" id="filter-income-end-date" placeholder="End Date">
+    </div>
+
+    <button id="apply-income-filter" class="btn btn-primary">Apply Filter</button>
+    <button id="clear-income-filter" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filter</button>
+</div>
 
       <div class="card-body">
         <h3>Monthly Income Records</h3>
@@ -200,7 +216,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-  <script src="../assets/js/report.js"></script>
   <script src="../assets/js/sidebar-toggle.js"></script>
 </body>
 </html>

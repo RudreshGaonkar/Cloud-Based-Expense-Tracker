@@ -227,7 +227,6 @@
     background-color: #e74c3c;
   }
   
-  /* Responsive Adjustments */
   @media (max-width: 768px) {
     .report-controls {
       flex-direction: column;
@@ -242,7 +241,6 @@
     }
   }
   
-  /* Card Improvements */
   .card {
     border-radius: 0.5rem;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -270,7 +268,6 @@
     padding: 1.5rem;
   }
   
-  /* Animation effects */
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -316,3 +313,154 @@
   .text-center {
     text-align: center;
   }
+  .filter-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fc;
+    border-radius: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-container label {
+    margin-right: 5px;
+    font-weight: 500;
+  }
+  
+  .filter-container input {
+    padding: 5px 10px;
+    border: 1px solid #d1d3e2;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .date-range {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  
+  .date-range input {
+    width: 150px;
+  }
+  
+  .btn {
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: #4e73df;
+    color: white;
+    border: none;
+  }
+  
+  .btn-secondary {
+    background-color: #858796;
+    color: white;
+    border: none;
+  }
+  @media (max-width: 768px) {
+    .filter-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .filter-container input,
+    .date-range input,
+    .btn {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  }  
+
+  .filter-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.toggle-label {
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #4e73df;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.date-range {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.date-range label {
+    flex-basis: 100%;
+    margin-bottom: 5px;
+}
+
+.date-range input {
+    flex: 1;
+    min-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .filter-container {
+        flex-direction: column;
+    }
+    
+    .filter-container > label,
+    .filter-container > input,
+    .filter-container > button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}

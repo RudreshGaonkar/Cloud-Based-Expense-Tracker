@@ -22,9 +22,42 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then(html => {
           document.getElementById("sidebar").innerHTML = html;
+          
+          // Set active link after sidebar is loaded
+          setActiveLink();
       })
       .catch(error => console.error("Sidebar load error:", error));
 });
+
+function setActiveLink() {
+  const currentURL = window.location.href;
+  const urlParts = currentURL.split('/');
+  const currentFile = urlParts[urlParts.length - 1] || 'dashboard.html';
+  
+  console.log('Current file detected:', currentFile);
+  const menuLinks = document.querySelectorAll('.sidebar-menu ul li a');
+  console.log('Found menu links:', menuLinks.length);
+  menuLinks.forEach(function(link) {
+    link.classList.remove('active');
+    const linkHref = link.getAttribute('href');
+    console.log('Checking link:', linkHref);
+    if (currentFile.includes(linkHref) || 
+        (currentFile === '' && linkHref === 'dashboard.html') ||
+        (currentFile === 'index.html' && linkHref === 'dashboard.html')) {
+      console.log('MATCH FOUND! Setting active:', linkHref);
+      link.classList.add('active');
+    }
+  });
+  const hasActive = document.querySelector('.sidebar-menu ul li a.active');
+  if (!hasActive && (currentFile === '' || currentFile === 'index.html')) {
+    const dashboardLink = document.querySelector('.sidebar-menu ul li a[href="dashboard.html"]');
+    if (dashboardLink) {
+      console.log('Fallback: Setting dashboard as active');
+      dashboardLink.classList.add('active');
+    }
+  }
+  console.log('Elements with active class after processing:', document.querySelectorAll('.sidebar-menu ul li a.active').length);
+}
 
 function logoutUser() {
   const logoutBtn = document.querySelector('.logout-btn');

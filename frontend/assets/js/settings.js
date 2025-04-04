@@ -1,40 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadUserInfo();
+    const thankYouCard = document.getElementById('thankYouCard');
+    const thankYouDialog = document.getElementById('thankYouDialog');
+    const closeThankYouDialog = document.getElementById('closeThankYouDialog');
 
-    const currentPassword = document.getElementById('currentPassword');
-    const newPassword = document.getElementById('newPassword');
-    const confirmPassword = document.getElementById('confirmPassword');
-    const updatePasswordBtn = document.getElementById('updatePassword');
-  
-    updatePasswordBtn.addEventListener('click', () => {
-      if (newPassword.value !== confirmPassword.value) {
-        alert('New passwords do not match!');
-        return;
-      }
-  
-      const data = {
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value
-      };
-  
-      fetch('/api/auth/change-password', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      })
-        .then(response => response.json())
-        .then(result => {
-          alert(result.message);
-          currentPassword.value = '';
-          newPassword.value = '';
-          confirmPassword.value = '';
-        })
-        .catch(error => console.error('Error updating password:', error));
+    thankYouCard.addEventListener('click', function() {
+      thankYouDialog.style.display = 'block';
+      setTimeout(() => {
+        thankYouDialog.classList.add('show');
+      }, 10);
     });
-  });
 
-  async function loadUserInfo() {
+    closeThankYouDialog.addEventListener('click', function() {
+      thankYouDialog.classList.remove('show');
+      setTimeout(() => {
+        thankYouDialog.style.display = 'none';
+      }, 300);
+    });
+
+    window.addEventListener('click', function(event) {
+      if (event.target === thankYouDialog) {
+        thankYouDialog.classList.remove('show');
+        setTimeout(() => {
+          thankYouDialog.style.display = 'none';
+        }, 300);
+      }
+    });
+});
+
+async function loadUserInfo() {
     try {
       const response = await fetch('/api/users/profile', { credentials: 'include' });
       let userData;
@@ -43,10 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
         userData = data.user;
         
-  
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const updatedUser = { ...currentUser, ...userData };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
       } else {
         const storedUser = localStorage.getItem('user');
         if (!storedUser) {
@@ -60,18 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userNameElement) {
         userNameElement.textContent = userData.name;
       }
-  
-  
-      const nameInput = document.getElementById('profile-name-input');
-      if (nameInput) {
-        nameInput.value = userData.name;
-      }
-      
-      const emailDisplay = document.getElementById('profile-email-display');
-      if (emailDisplay) {
-        emailDisplay.value = userData.email || '';
-      }
-  
       loadUserAvatar();
   
     } catch (error) {
@@ -81,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userNameElement.textContent = 'Error Loading Profile';
       }
     }
-  }
+}
   
   function loadUserAvatar() {
     const avatarElements = document.querySelectorAll('#user-avatar, #large-user-avatar');

@@ -12,6 +12,8 @@ async function initializeDashboard() {
         await fetchFilteredExpenses();
         await updateIncomeExpenseChart(); 
         await updateExpenseFilters();
+        setupImprovedFilterToggle('expense');
+        setupImprovedFilterToggle('income');
         
         console.log("Checking stored user:", localStorage.getItem('user'));
         const user = JSON.parse(localStorage.getItem('user'));
@@ -39,11 +41,68 @@ async function initializeDashboard() {
     }
 }
 
+function setupImprovedFilterToggle(type) {
+    // Get the containers for both filter types
+    const dateRangeContainer = document.querySelector(`#filter-${type}-start-date`).closest('.date-range');
+    const monthInputContainer = document.querySelector(`#filter-${type}-month`).closest('.month');
+    
+    // Hide date range by default
+    dateRangeContainer.style.display = 'none';
+    monthInputContainer.style.display = 'block';
+    
+    // Create toggle container with switch
+    const toggleContainer = document.createElement('div');
+    toggleContainer.className = 'filter-toggle';
+    toggleContainer.innerHTML = `
+        <label class="toggle-switch">
+            <input type="checkbox" id="${type}-date-range-toggle">
+            <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Use Date Range</span>
+    `;
+    
+    // Insert toggle before the date range container
+    const filterContainer = document.querySelector(`#filter-${type}-month`).closest('.filter-container');
+    filterContainer.insertBefore(toggleContainer, dateRangeContainer);
+    
+    // Set up toggle event handler
+    const toggle = document.getElementById(`${type}-date-range-toggle`);
+    toggle.addEventListener('change', function() {
+        if (this.checked) {
+            // When checked, show date range and hide month
+            dateRangeContainer.style.display = 'flex';
+            monthInputContainer.style.display = 'none';
+        } else {
+            // When unchecked, show month and hide date range
+            dateRangeContainer.style.display = 'none';
+            monthInputContainer.style.display = 'block';
+        }
+        
+        // Clear all inputs when switching between filter types
+        document.getElementById(`filter-${type}-month`).value = '';
+        document.getElementById(`filter-${type}-start-date`).value = '';
+        document.getElementById(`filter-${type}-end-date`).value = '';
+    });
+    
+    // Set up clear filter button behavior
+    document.getElementById(`clear-${type}-filter`).addEventListener('click', function() {
+        // Reset toggle to default (month)
+        toggle.checked = false;
+        
+        // Reset visibility
+        dateRangeContainer.style.display = 'none';
+        monthInputContainer.style.display = 'block';
+        
+        // Clear all input values
+        document.getElementById(`filter-${type}-month`).value = '';
+        document.getElementById(`filter-${type}-start-date`).value = '';
+        document.getElementById(`filter-${type}-end-date`).value = '';
+    });
+}
 
 let summaryChartInstance = null;
 let trendChartInstance = null;
 let incomeChartInstance = null;
-
 const inrFormatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -55,36 +114,41 @@ async function updateExpenseFilters() {
     if (!filterContainer) return;
     const today = new Date();
     const yearMonth = today.toISOString().slice(0, 7);
-    
-    // Replace the current filter container content with a single month input
     filterContainer.innerHTML = `
+        <div class="month">
         <label for="filter-expense-month">Select Month (YYYY-MM):</label>
-        <input type="text" id="filter-expense-month" placeholder="e.g. ${yearMonth}">
+            <input type="text" id="filter-expense-month" placeholder="e.g. ${yearMonth}">
+        </div>
+        <div class="date-range">
+            <label>Date Range:</label>
+            <input type="date" id="filter-expense-start-date" placeholder="Start Date">
+            <input type="date" id="filter-expense-end-date" placeholder="End Date">
+        </div>
 
         <button id="apply-expense-filter" class="btn btn-primary">Apply Filter</button>
         <button id="clear-expense-filter" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filter</button>
     `;
-    
-
     document.getElementById('apply-expense-filter')?.addEventListener('click', fetchFilteredExpenses);
     document.getElementById('clear-expense-filter')?.addEventListener('click', clearExpenseFilter);
 }
-
 async function fetchFilteredExpenses() {
     try {
         const userId = getUserId();
         if (!userId) return;
 
         let month = document.getElementById('filter-expense-month').value;
-        
+        let startDate = document.getElementById('filter-expense-start-date').value;
+        let endDate = document.getElementById('filter-expense-end-date').value;
         const params = new URLSearchParams({ userId });
-        if (month) params.append("month", month);
-
+        if (startDate && endDate) {
+            params.append("startDate", startDate);
+            params.append("endDate", endDate);
+        } else if (month) {
+            params.append("month", month);
+        }
         console.log("📡 Fetching filtered expenses with params:", params.toString());
-
         const response = await fetch(`/api/reports/filtered?${params.toString()}`);
         const data = await response.json();
-
         console.log("📊 Filtered Expenses API Response:", data);
         updateFinancialTable(data);
     } catch (error) {
@@ -94,11 +158,12 @@ async function fetchFilteredExpenses() {
 
 function clearExpenseFilter() {
     document.getElementById('filter-expense-month').value = "";
+    document.getElementById('filter-expense-start-date').value = "";
+    document.getElementById('filter-expense-end-date').value = "";
     console.log("Expense filters cleared. Reloading all expense data...");
     fetchFilteredExpenses();
 }
 
-// Fetch Expense Summary
 async function fetchExpenseSummary() {
     try {
         const userId = getUserId();
@@ -123,7 +188,6 @@ function updateSummaryStats(data) {
     document.getElementById('highest-category').textContent = data.topCategory || '-';
 }
 
-
 async function fetchCategoryReport() {
     try {
         const userId = getUserId();
@@ -142,11 +206,9 @@ async function fetchCategoryReport() {
 function updateCategoryChart(data) {
     const ctx = document.getElementById('reportChart')?.getContext('2d');
     if (!ctx) return;
-
     if (summaryChartInstance) {
         summaryChartInstance.destroy();
     }
-
     summaryChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -159,7 +221,6 @@ function updateCategoryChart(data) {
         options: { responsive: true, maintainAspectRatio: false }
     });
 }
-
 // Fetch Expense Trends
 async function fetchExpenseTrends() {
     try {
@@ -178,7 +239,6 @@ async function fetchExpenseTrends() {
         console.error("❌ Error fetching expense trends:", error);
     }
 }
-
 function updateTrendChart(data, period) {
     if (!Array.isArray(data) || data.length === 0) {
         console.warn("⚠️ No trend data available.");
@@ -191,8 +251,6 @@ function updateTrendChart(data, period) {
     if (trendChartInstance) {
         trendChartInstance.destroy();
     }
-
-
     const formattedLabels = data.map(item => {
         const period = item.period;
 
@@ -210,7 +268,6 @@ function updateTrendChart(data, period) {
             return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
         }
     });
-
     let chartTitle = 'Monthly Spending Trend';
     switch (period) {
         case 'day':
@@ -223,11 +280,9 @@ function updateTrendChart(data, period) {
             chartTitle = 'Yearly Spending Trend';
             break;
     }
-
     const expenseData = data.map(item => 
         item.totalExpense !== undefined ? item.totalExpense : item.total
     );
-
     trendChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -316,66 +371,47 @@ async function updateIncomeExpenseChart() {
             userId: userId,
             month: currentMonthStr  
         });
-        
         const expenseResponse = await fetch(`/api/reports/filtered?${expenseParams.toString()}`);
         const expenseData = await expenseResponse.json();
-        
         const totalMonthlyExpenses = expenseData.reduce((sum, expense) => {
             return sum + expense.amount;
         }, 0);
-        
-        // Fetch category data for the current month only
         const categoryParams = new URLSearchParams({
             userId: userId,
             month: currentMonthStr
         });
-        
         const categoryResponse = await fetch(`/api/reports/categories?${categoryParams.toString()}`);
         const categoryData = await categoryResponse.json();
-        
         const incomeResponse = await fetch(`/api/reports/monthly-income?month=${currentMonthStr}&userId=${userId}`);
-        
         if (!incomeResponse.ok) {
             console.error(`Error fetching income data: ${incomeResponse.status} ${incomeResponse.statusText}`);
             throw new Error(`Failed to fetch income data: ${incomeResponse.status}`);
         }
-        
         const incomeData = await incomeResponse.json();
         console.log("Income data received:", incomeData);
         const totalMonthlyIncome = incomeData?.totalIncome || 0;
-        
         const remainingIncome = totalMonthlyIncome - totalMonthlyExpenses;
-
         const ctx = document.getElementById('incomeChart')?.getContext('2d');
         if (!ctx) {
             console.warn("⚠️ Income chart canvas not found!");
             return;
         }
-
         if (incomeChartInstance) {
             incomeChartInstance.destroy();
         }
-
-        // Prepare chart data
         const labels = categoryData.map(item => item.category);
         const data = categoryData.map(item => item.totalAmount);
-        
-        // Only add remaining income if positive
         if (remainingIncome > 0) {
             labels.push('Remaining Income');
             data.push(remainingIncome);
         }
-        
         const backgroundColors = categoryData.map((_, index) => {
             return `hsl(${index * 40}, 70%, 50%)`;
         });
-        
         if (remainingIncome > 0) {
             backgroundColors.push('rgba(75, 192, 120, 0.7)');
         }
-
         const monthName = new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'long' });
-        
         console.log(`📊 Creating Income vs Expenses Chart for ${monthName} ${currentYear}`, {
             totalMonthlyIncome,
             totalMonthlyExpenses,
@@ -383,7 +419,6 @@ async function updateIncomeExpenseChart() {
             categories: labels,
             values: data
         });
-        
         incomeChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
@@ -418,17 +453,14 @@ async function updateIncomeExpenseChart() {
                 }
             }
         });
-        
         const monthlyIncomeElement = document.getElementById('monthly-income');
         if (monthlyIncomeElement) {
             monthlyIncomeElement.textContent = inrFormatter.format(totalMonthlyIncome);
         }
-        
         const monthlyExpensesElement = document.getElementById('monthly-expenses');
         if (monthlyExpensesElement) {
             monthlyExpensesElement.textContent = inrFormatter.format(totalMonthlyExpenses);
         }
-        
         const balanceElement = document.getElementById('monthly-balance');
         if (balanceElement) {
             balanceElement.textContent = inrFormatter.format(remainingIncome);
@@ -447,7 +479,6 @@ async function updateIncomeExpenseChart() {
         if (monthlyExpensesElement) {
             monthlyExpensesElement.textContent = inrFormatter.format(0);
         }
-        
         const balanceElement = document.getElementById('monthly-balance');
         if (balanceElement) {
             balanceElement.textContent = inrFormatter.format(0);
@@ -455,68 +486,15 @@ async function updateIncomeExpenseChart() {
     }
 }
 
-// Fetch Filtered Expenses
-// async function fetchFilteredExpenses() {
-//     try {
-//         const userId = getUserId();
-//         if (!userId) return;
-
-//         let date = document.getElementById('filter-date').value;
-//         let month = document.getElementById('filter-month').value;
-//         let year = document.getElementById('filter-year').value;
-
-//         const params = new URLSearchParams({ userId });
-//         if (date) params.append("date", date);
-//         if (month) params.append("month", month);
-//         if (year) params.append("year", year);
-
-//         console.log("📡 Fetching filtered expenses with params:", params.toString());
-
-//         const response = await fetch(`/api/reports/filtered?${params.toString()}`);
-//         const data = await response.json();
-
-//         console.log("📊 Filtered Expenses API Response:", data);
-//         updateFinancialTable(data);
-//     } catch (error) {
-//         console.error("❌ Error fetching filtered expenses:", error);
-//     }
-// }
-
-// function updateFinancialTable(data) {
-//     const tableBody = document.getElementById('expenses-table')?.querySelector('tbody');
-//     if (!tableBody) return;
-    
-//     tableBody.innerHTML = '';
-
-//     if (!Array.isArray(data) || data.length === 0) {
-//         tableBody.innerHTML = `<tr><td colspan="3" class="text-center">No data available.</td></tr>`;
-//         return;
-//     }
-
-//     data.forEach(expense => {
-//         const row = document.createElement('tr');
-//         row.innerHTML = `
-//             <td>${new Date(expense.date).toLocaleDateString('en-IN')}</td>
-//             <td>${expense.title}</td>
-//             <td>${inrFormatter.format(expense.amount)}</td>
-//         `;
-//         tableBody.appendChild(row);
-//     });
-// }
 function updateFinancialTable(data) {
     const tableBody = document.getElementById('expenses-table')?.querySelector('tbody');
     if (!tableBody) return;
-    
     tableBody.innerHTML = '';
-
     if (!Array.isArray(data) || data.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="3" class="text-center">No data available.</td></tr>`;
         return;
     }
-
-    // Calculate total expenses from the displayed records
     const totalExpenses = data.reduce((sum, expense) => sum + expense.amount, 0);
-    
     data.forEach(expense => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -526,8 +504,6 @@ function updateFinancialTable(data) {
         `;
         tableBody.appendChild(row);
     });
-    
-    // Add a total row at the bottom
     const totalRow = document.createElement('tr');
     totalRow.className = 'total-row';
     totalRow.innerHTML = `
@@ -545,8 +521,6 @@ async function loadUserInfo() {
       if (response.ok) {
         const data = await response.json();
         userData = data.user;
-        
-  
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         const updatedUser = { ...currentUser, ...userData };
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -557,24 +531,19 @@ async function loadUserInfo() {
         }
         userData = JSON.parse(storedUser);
       }
-  
-  
       const userNameElement = document.getElementById('user-name');
       if (userNameElement) {
         userNameElement.textContent = userData.name;
       }
   
-  
       const nameInput = document.getElementById('profile-name-input');
       if (nameInput) {
         nameInput.value = userData.name;
       }
-      
       const emailDisplay = document.getElementById('profile-email-display');
       if (emailDisplay) {
         emailDisplay.value = userData.email || '';
       }
-  
       loadUserAvatar();
   
     } catch (error) {
@@ -613,22 +582,26 @@ async function loadUserInfo() {
 function getUserId() {
     return JSON.parse(localStorage.getItem('user'))?.id || null;
 }
-
 async function fetchFilteredIncome() {
     try {
         const userId = getUserId();
         if (!userId) return;
 
         let month = document.getElementById('filter-income-month').value;
-        
+        let startDate = document.getElementById('filter-income-start-date').value;
+        let endDate = document.getElementById('filter-income-end-date').value;
         const params = new URLSearchParams({ userId });
-        if (month) params.append("month", month);
+        
+        if (startDate && endDate) {
+            params.append("startDate", startDate);
+            params.append("endDate", endDate);
+        } else if (month) {
+            params.append("month", month);
+        }
 
         console.log("📡 Fetching filtered income with params:", params.toString());
-
         const response = await fetch(`/api/reports/filtered-income?${params.toString()}`);
         const data = await response.json();
-
         console.log("💰 Filtered Income API Response:", data);
         updateIncomeTable(data);
     } catch (error) {
@@ -636,7 +609,14 @@ async function fetchFilteredIncome() {
     }
 }
 
-// Function to update income table
+function clearIncomeFilter() {
+    document.getElementById('filter-income-month').value = "";
+    document.getElementById('filter-income-start-date').value = "";
+    document.getElementById('filter-income-end-date').value = "";
+    console.log("Income filters cleared. Reloading all income data...");
+    fetchFilteredIncome();
+}
+
 function updateIncomeTable(data) {
     const tableBody = document.getElementById('income-table')?.querySelector('tbody');
     if (!tableBody) return;
@@ -647,16 +627,13 @@ function updateIncomeTable(data) {
         tableBody.innerHTML = `<tr><td colspan="3" class="text-center">No income data available for this month.</td></tr>`;
         return;
     }
-
     const totalIncome = data.reduce((sum, income) => sum + income.amount, 0);
-    
     const totalRow = document.createElement('tr');
     totalRow.className = 'total-row';
     totalRow.innerHTML = `
         <td colspan="2" class="text-right"><strong>Total Income:</strong></td>
         <td><strong>${inrFormatter.format(totalIncome)}</strong></td>
     `;
-    
     data.forEach(income => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -666,12 +643,5 @@ function updateIncomeTable(data) {
         `;
         tableBody.appendChild(row);
     });
-    
     tableBody.appendChild(totalRow);
-}
-
-function clearIncomeFilter() {
-    document.getElementById('filter-income-month').value = "";
-    console.log("Income filters cleared. Reloading all income data...");
-    fetchFilteredIncome();
 }

@@ -2,10 +2,11 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchIncomeRecords();
   loadUserInfo();
 
-  const incomeForm = document.getElementById("incomeForm");
-  const incomeDateInput = document.getElementById("incomeDate");
   let isEditMode = false;
   let currentIncomeId = null;
+  
+  const incomeForm = document.getElementById("incomeForm");
+  const incomeDateInput = document.getElementById("incomeDate");
 
   function setMaxDateToToday() {
     const today = new Date();
@@ -66,8 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
           try {
               let url = "/api/income/add";
               let method = "POST";
-              
-              // If in edit mode, update instead of add
+
               if (isEditMode && currentIncomeId) {
                 url = `/api/income/update/${currentIncomeId}`;
                 method = "PUT";
@@ -122,37 +122,36 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   });
   
-  // Add cancel button event listener
   document.getElementById("cancel-edit").addEventListener("click", (e) => {
     e.preventDefault();
     exitEditMode();
     incomeForm.reset();
   });
+  
+  window.enterEditMode = function(incomeId, amount, date, description) {
+    isEditMode = true;
+    currentIncomeId = incomeId;
+    
+    document.getElementById("incomeAmount").value = amount;
+    document.getElementById("incomeDate").value = formatDateForInput(date);
+    document.getElementById("incomeDescription").value = description;
+    
+    const submitButton = document.getElementById("add-income");
+    submitButton.innerHTML = '<i class="fas fa-save"></i> Update Income';
+    document.getElementById("cancel-edit").style.display = "block";
+    
+    document.querySelector(".card").scrollIntoView({behavior: "smooth"});
+  };
+
+  window.exitEditMode = function() {
+    isEditMode = false;
+    currentIncomeId = null;
+    
+    const submitButton = document.getElementById("add-income");
+    submitButton.innerHTML = '<i class="fas fa-plus"></i> Add Income';
+    document.getElementById("cancel-edit").style.display = "none";
+  };
 });
-
-function enterEditMode(incomeId, amount, date, description) {
-  isEditMode = true;
-  currentIncomeId = incomeId;
-  
-  document.getElementById("incomeAmount").value = amount;
-  document.getElementById("incomeDate").value = formatDateForInput(date);
-  document.getElementById("incomeDescription").value = description;
-  
-  const submitButton = document.getElementById("add-income");
-  submitButton.innerHTML = '<i class="fas fa-save"></i> Update Income';
-  document.getElementById("cancel-edit").style.display = "block";
-  
-  document.querySelector(".card").scrollIntoView({behavior: "smooth"});
-}
-
-function exitEditMode() {
-  isEditMode = false;
-  currentIncomeId = null;
-  
-  const submitButton = document.getElementById("add-income");
-  submitButton.innerHTML = '<i class="fas fa-plus"></i> Add Income';
-  document.getElementById("cancel-edit").style.display = "none";
-}
 
 function formatDateForInput(dateString) {
   const date = new Date(dateString);
@@ -162,28 +161,7 @@ function formatDateForInput(dateString) {
   return `${year}-${month}-${day}`;
 }
 
-// async function deleteIncome(incomeId) {
-//   if (confirm("Are you sure you want to delete this income entry?")) {
-//     try {
-//       const response = await fetch(`/api/income/delete/${incomeId}`, {
-//         method: "DELETE"
-//       });
-      
-//       const result = await response.json();
-      
-//       if (!response.ok) {
-//         throw new Error(result.message || "Failed to delete income entry.");
-//       }
-      
-//       alert(result.message || "Income entry deleted successfully.");
-//       fetchIncomeRecords(); 
-//     } catch (error) {
-//       console.error("Error deleting income:", error);
-//       alert(error.message);
-//     }
-//   }
-// }
-async function deleteIncome(incomeId) {
+window.deleteIncome = async function(incomeId) {
   if (confirm("Are you sure you want to delete this income entry?")) {
     try {
       const deleteButton = event.currentTarget;
@@ -219,7 +197,6 @@ async function deleteIncome(incomeId) {
     }
   }
 }
-
 
 async function fetchIncomeRecords(page = 1) {
   try {

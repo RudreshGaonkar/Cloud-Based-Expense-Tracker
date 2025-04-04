@@ -1,84 +1,102 @@
 const { sql, poolPromise } = require('../config/db');
 
-const getFilteredExpenses = async (req, res) => {
-  try {
-      const userId = req.query.userId;
-      const date = req.query.date || null; 
-      const month = req.query.month || null; 
-      const year = req.query.year || null; 
-
-      if (!userId) {
-          return res.status(400).json({ message: "User ID is required" });
-      }
-
-      let whereClause = "WHERE userId = @userId";
-      if (date) {
-          whereClause += " AND FORMAT(date, 'yyyy-MM-dd') = @date";
-      } else if (month) {
-          whereClause += " AND FORMAT(date, 'yyyy-MM') = @month";
-      } else if (year) {
-          whereClause += " AND FORMAT(date, 'yyyy') = @year";
-      }
-
-      const pool = await poolPromise;
-      const result = await pool.request()
-          .input('userId', sql.Int, userId)
-          .input('date', sql.NVarChar, date || null)
-          .input('month', sql.NVarChar, month || null)
-          .input('year', sql.NVarChar, year || null)
-          .query(`
-              SELECT title, amount, date
-              FROM Expenses 
-              ${whereClause}
-              ORDER BY Date DESC;
-          `);
-
-      console.log("📊 Filtered Expenses SQL Result:", result.recordset);
-
-      res.json(result.recordset || []);
-  } catch (error) {
-      console.error("❌ Error fetching filtered expenses:", error);
-      res.status(500).json({ message: "Error retrieving expenses", error: error.message });
-  }
-};
-
-
-// const getExpenseSummary = async (req, res) => {
+// const getFilteredExpenses = async (req, res) => {
 //   try {
-//       const userId = req.query.userId; 
+//       const userId = req.query.userId;
+//       const date = req.query.date || null; 
+//       const month = req.query.month || null; 
+//       const year = req.query.year || null; 
+
 //       if (!userId) {
 //           return res.status(400).json({ message: "User ID is required" });
 //       }
 
-//       console.log(`✅ Fetching expense summary for userId: ${userId}`);
+//       let whereClause = "WHERE userId = @userId";
+//       if (date) {
+//           whereClause += " AND FORMAT(date, 'yyyy-MM-dd') = @date";
+//       } else if (month) {
+//           whereClause += " AND FORMAT(date, 'yyyy-MM') = @month";
+//       } else if (year) {
+//           whereClause += " AND FORMAT(date, 'yyyy') = @year";
+//       }
 
 //       const pool = await poolPromise;
 //       const result = await pool.request()
 //           .input('userId', sql.Int, userId)
+//           .input('date', sql.NVarChar, date || null)
+//           .input('month', sql.NVarChar, month || null)
+//           .input('year', sql.NVarChar, year || null)
 //           .query(`
-//               SELECT 
-//                   COALESCE(SUM(amount), 0) AS totalExpenses, 
-//                   COUNT(id) AS transactionCount,
-//                   COALESCE(AVG(amount), 0) AS avgDaily,
-//                   (SELECT TOP 1 c.name 
-//                    FROM Expenses e 
-//                    INNER JOIN Categories c ON e.categoryId = c.id
-//                    WHERE e.userId = @userId 
-//                    GROUP BY c.name 
-//                    ORDER BY SUM(e.amount) DESC) AS topCategory
+//               SELECT title, amount, date
 //               FROM Expenses 
-//               WHERE userId = @userId
+//               ${whereClause}
+//               ORDER BY Date DESC;
 //           `);
 
-//       console.log("📊 Expense Summary Data:", result.recordset[0]);
+//       console.log("📊 Filtered Expenses SQL Result:", result.recordset);
 
-//       res.json(result.recordset[0] || {}); 
+//       res.json(result.recordset || []);
 //   } catch (error) {
-//       console.error("❌ Error fetching expense summary:", error);
-//       res.status(500).json({ message: "Error retrieving expense summary", error: error.message });
+//       console.error("❌ Error fetching filtered expenses:", error);
+//       res.status(500).json({ message: "Error retrieving expenses", error: error.message });
 //   }
 // };
- 
+const getFilteredExpenses = async (req, res) => {
+    try {
+        const userId = req.query.userId;
+        const date = req.query.date || null; 
+        const month = req.query.month || null; 
+        const year = req.query.year || null;
+        const startDate = req.query.startDate || null;
+        const endDate = req.query.endDate || null;
+  
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+  
+        let whereClause = "WHERE userId = @userId";
+        
+        if (startDate && endDate) {
+            whereClause += " AND date >= @startDate AND date <= @endDate";
+        } else if (date) {
+            whereClause += " AND FORMAT(date, 'yyyy-MM-dd') = @date";
+        } else if (month) {
+            whereClause += " AND FORMAT(date, 'yyyy-MM') = @month";
+        } else if (year) {
+            whereClause += " AND FORMAT(date, 'yyyy') = @year";
+        }
+  
+        const pool = await poolPromise;
+        const request = pool.request()
+            .input('userId', sql.Int, userId)
+            .input('date', sql.NVarChar, date || null)
+            .input('month', sql.NVarChar, month || null)
+            .input('year', sql.NVarChar, year || null);
+            
+        if (startDate && endDate) {
+            const adjustedEndDate = new Date(endDate);
+            adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+            request.input('startDate', sql.Date, new Date(startDate));
+            request.input('endDate', sql.Date, adjustedEndDate);
+        }
+            
+        const result = await request.query(`
+            SELECT title, amount, date
+            FROM Expenses 
+            ${whereClause}
+            ORDER BY Date DESC;
+        `);
+  
+        console.log("📊 Filtered Expenses SQL Result:", result.recordset);
+  
+        res.json(result.recordset || []);
+    } catch (error) {
+        console.error("❌ Error fetching filtered expenses:", error);
+        res.status(500).json({ message: "Error retrieving expenses", error: error.message });
+    }
+};
+  
+
 const getExpenseSummary = async (req, res) => {
     try {
         const userId = req.query.userId; 
@@ -194,31 +212,6 @@ const getExpenseTrends = async (req, res) => {
         res.status(500).json({ message: "Error retrieving trends", error: error.message });
     }
   };
-
-//   const getCategoryReport = async (req, res) => {
-//     try {
-//       const userId = req.query.userId; 
-//       if (!userId) {
-//         return res.status(400).json({ message: "User ID is required" });
-//       }
-  
-//       const pool = await poolPromise;
-//       const result = await pool.request()
-//         .input('userId', sql.Int, userId)
-//         .query(`
-//             SELECT c.name AS category, SUM(e.amount) AS totalAmount
-//             FROM Expenses e
-//             INNER JOIN Categories c ON e.categoryId = c.id
-//             WHERE e.userId = @userId
-//             GROUP BY c.name
-//         `);
-  
-//       res.json(result.recordset || []);
-//     } catch (error) {
-//       console.error("Error fetching category report:", error);
-//       res.status(500).json({ message: "Error retrieving category report", error: error.message });
-//     }
-//   };
   
 const getCategoryReport = async (req, res) => {
     try {
@@ -305,30 +298,77 @@ const getCategoryReport = async (req, res) => {
     }
 };
 
+// const getFilteredIncome = async (req, res) => {
+//     try {
+//         const userId = req.query.userId;
+//         const month = req.query.month || null;
+        
+//         if (!userId) {
+//             return res.status(400).json({ message: "User ID is required" });
+//         }
+  
+//         let whereClause = "WHERE userId = @userId";
+//         if (month) {
+//             whereClause += " AND FORMAT(date, 'yyyy-MM') = @month";
+//         }
+  
+//         const pool = await poolPromise;
+//         const result = await pool.request()
+//             .input('userId', sql.Int, userId)
+//             .input('month', sql.NVarChar, month || null)
+//             .query(`
+//                 SELECT description, amount, date
+//                 FROM Income 
+//                 ${whereClause}
+//                 ORDER BY Date DESC;
+//             `);
+  
+//         console.log("💰 Filtered Income SQL Result:", result.recordset);
+  
+//         res.json(result.recordset || []);
+//     } catch (error) {
+//         console.error("❌ Error fetching filtered income:", error);
+//         res.status(500).json({ message: "Error retrieving income records", error: error.message });
+//     }
+//   };
+
 const getFilteredIncome = async (req, res) => {
     try {
         const userId = req.query.userId;
         const month = req.query.month || null;
+        const startDate = req.query.startDate || null;
+        const endDate = req.query.endDate || null;
         
         if (!userId) {
             return res.status(400).json({ message: "User ID is required" });
         }
   
         let whereClause = "WHERE userId = @userId";
-        if (month) {
+        
+        if (startDate && endDate) {
+            whereClause += " AND date >= @startDate AND date <= @endDate";
+        } else if (month) {
             whereClause += " AND FORMAT(date, 'yyyy-MM') = @month";
         }
   
         const pool = await poolPromise;
-        const result = await pool.request()
+        const request = pool.request()
             .input('userId', sql.Int, userId)
-            .input('month', sql.NVarChar, month || null)
-            .query(`
-                SELECT description, amount, date
-                FROM Income 
-                ${whereClause}
-                ORDER BY Date DESC;
-            `);
+            .input('month', sql.NVarChar, month || null);
+            
+        if (startDate && endDate) {
+            const adjustedEndDate = new Date(endDate);
+            adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+            request.input('startDate', sql.Date, new Date(startDate));
+            request.input('endDate', sql.Date, adjustedEndDate);
+        }
+            
+        const result = await request.query(`
+            SELECT description, amount, date
+            FROM Income 
+            ${whereClause}
+            ORDER BY Date DESC;
+        `);
   
         console.log("💰 Filtered Income SQL Result:", result.recordset);
   
@@ -337,10 +377,10 @@ const getFilteredIncome = async (req, res) => {
         console.error("❌ Error fetching filtered income:", error);
         res.status(500).json({ message: "Error retrieving income records", error: error.message });
     }
-  };
+};
   
   
-  module.exports = {
+module.exports = {
     getExpenseSummary,
     getCategoryReport,
     getMonthlyTrends,
