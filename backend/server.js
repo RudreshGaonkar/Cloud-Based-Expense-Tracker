@@ -24,7 +24,10 @@ app.use(session({
   secret: 'mysecretkey', 
   resave: false,
   saveUninitialized: false, 
-  cookie: { secure: false, maxAge: 3600000 }
+  cookie: { 
+    secure: false, 
+    maxAge: 30 * 24 * 60 * 60 * 1000 //3600000 
+  }
 }));
 
 app.use('/api/dashboard', dashboardRoutes);
